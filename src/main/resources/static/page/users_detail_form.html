@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chỉnh sửa Người dùng</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+    <style>
+        body {
+            background: #f5f5f5;
+        }
+        .card-custom {
+            max-width: 900px;
+            margin: 40px auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .header-custom {
+            background: #03a9f4;
+            padding: 15px 25px;
+            color: #fff;
+            font-size: 22px;
+            font-weight: 600;
+            border-radius: 12px 12px 0 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card card-custom">
+    <div class="header-custom">Chỉnh sửa Người dùng</div>
+
+    <div class="card-body">
+
+        <form id="editForm">
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">ID:</label>
+                    <input type="text" id="userId" class="form-control" readonly>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Họ tên:</label>
+                    <input type="text" id="name" class="form-control" required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Email:</label>
+                    <input type="email" id="email" class="form-control" required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Số điện thoại:</label>
+                    <input type="text" id="phoneNumber" class="form-control">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Nền tảng (Platform):</label>
+                    <input type="text" id="platform" class="form-control" readonly>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Trạng thái:</label>
+                    <select id="status" class="form-select">
+                        <option value="true">Đang hoạt động</option>
+                        <option value="false">Ngừng hoạt động</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Ngày tạo:</label>
+                    <input type="text" id="createdDate" class="form-control" readonly>
+                </div>
+
+            </div>
+
+            <div class="d-flex justify-content-end mt-4">
+                <button type="button" onclick="history.back()"
+                        class="btn btn-secondary me-2 px-4">Hủy</button>
+                <button type="submit" class="btn btn-primary px-4">Lưu thay đổi</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const API_BASE = "http://localhost:8080/admin/users";
+
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get("id");
+
+    /**
+     * Định dạng chuỗi LocalDateTime (ví dụ: 2023-10-27T10:30) thành DD/MM/YYYY HH:mm:ss
+     * (Hàm này được thêm vào để đảm bảo hiển thị đúng format, tương tự như trang Detail)
+     */
+    function formatFullDateTime(dateTimeStr) {
+        if (!dateTimeStr) return 'N/A';
+        try {
+            // Thêm giây và múi giờ giả định nếu cần
+            const fullStr = dateTimeStr.length === 16 ? `${dateTimeStr}:00` : dateTimeStr;
+            const date = new Date(fullStr);
+
+            if (isNaN(date)) {
+                 // Nếu không thể parse, cố gắng parse thủ công
+                 const [datePart, timePart] = dateTimeStr.split('T');
+                 const [year, month, day] = datePart.split('-');
+                 const [hour, minute] = timePart.split(':');
+                 return `${day}/${month}/${year} ${hour}:${minute}:00`;
+            }
+
+            const pad = (num) => num.toString().padStart(2, '0');
+
+            const day = pad(date.getDate());
+            const month = pad(date.getMonth() + 1);
+            const year = date.getFullYear();
+            const hours = pad(date.getHours());
+            const minutes = pad(date.getMinutes());
+            const seconds = pad(date.getSeconds());
+
+            return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+        } catch (e) {
+            console.error("Lỗi format ngày giờ:", e);
+            return dateTimeStr;
+        }
+    }
+
+    async function loadUser() {
+        try {
+            const res = await fetch(`${API_BASE}/${userId}`);
+            if (!res.ok) {
+                // throw để bắt lỗi 404/500
+                throw new Error(`Không tìm thấy người dùng hoặc lỗi server: ${res.status}`);
+            }
+
+            const data = await res.json();
+
+            document.getElementById("userId").value = data.userId || 'N/A';
+            document.getElementById("name").value = data.name || '';
+            document.getElementById("email").value = data.email || '';
+            document.getElementById("phoneNumber").value = data.phoneNumber || '';
+            document.getElementById("platform").value = data.platform || 'OTHER';
+            document.getElementById("status").value = data.status ? "true" : "false"; // Phải là chuỗi "true" hoặc "false" cho <select>
+
+            // ⭐ DÒNG ĐÃ SỬA: Thay data.createdDate bằng data.createdAt
+            document.getElementById("createdDate").value = formatFullDateTime(data.createdAt);
+
+        } catch(error) {
+            console.error("Lỗi tải thông tin người dùng:", error);
+            alert("Lỗi: " + error.message);
+            document.getElementById("createdDate").value = "Lỗi tải dữ liệu";
+        }
+    }
+
+    if (userId) {
+        loadUser();
+    } else {
+        alert("Lỗi: Thiếu ID người dùng trong URL.");
+    }
+
+    document.getElementById("editForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const updatedUser = {
+            name: document.getElementById("name").value,
+            email: document.getElementById("email").value,
+            phoneNumber: document.getElementById("phoneNumber").value,
+            // Đảm bảo gửi giá trị boolean
+            status: document.getElementById("status").value === "true"
+        };
+
+        const res = await fetch(`${API_BASE}/${userId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedUser)
+        });
+
+        if (res.ok) {
+            alert("Cập nhật thành công!");
+            // Chuyển hướng về trang chi tiết sau khi cập nhật
+            window.location.href = `users_detail_form.html?id=${userId}`;
+        } else {
+            alert("Cập nhật thất bại!");
+        }
+    });
+
+</script>
+
+</body>
+</html>

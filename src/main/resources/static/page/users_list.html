@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Users</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS */
+    </style>
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <h2 class="text-primary text-center mb-4 fw-bold">DANH SÁCH NGƯỜI DÙNG</h2>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-9">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" id="searchInput" class="form-control" placeholder="Nhập từ khóa (tên, email, phone)...">
+                        <button class="btn btn-primary" onclick="handleSearch()">Tìm kiếm</button>
+                        <button class="btn btn-outline-secondary" onclick="resetSearch()">Làm mới</button>
+                    </div>
+                </div>
+                <div class="col-md-3 text-end">
+                    <a href="users_add_form.html" class="btn btn-success px-4">
+                        <i class="fas fa-plus-circle"></i> Thêm mới
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body p-0">
+            <table class="table table-hover table-bordered mb-0 align-middle">
+                <thead class="table-dark text-center">
+                <tr>
+                    <th>ID</th>
+                    <th>Platform</th>
+                    <th>Họ Tên</th>
+                    <th>Email</th>
+                    <th>Ngày tạo</th>
+                    <th>Status</th>
+                    <th style="width: 150px;">Action</th>
+                </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            <div id="pagingInfo" class="text-muted"></div>
+            <nav>
+                <ul id="pagination" class="pagination mb-0">
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<script>
+    // **********************************
+    // LOGIC JAVASCRIPT GỌI API BACKEND
+    // **********************************
+
+    const API_URL = "http://localhost:8080/admin/users";
+    let currentPage = 0;
+    let currentKeyword = "";
+    // Kích thước trang cố định (thay vì chọn từ dropdown)
+    const FIXED_PAGE_SIZE = 4;
+
+    document.addEventListener("DOMContentLoaded", () => loadUsers(0));
+
+    // Hàm chính tải dữ liệu (có phân trang và tìm kiếm)
+    function loadUsers(page = currentPage) {
+        const keyword = document.getElementById("searchInput").value.trim();
+        let url = API_URL;
+
+        if (keyword) {
+            // Sử dụng FIXED_PAGE_SIZE
+            url += `/search?keyword=${keyword}&page=${page}&pageSize=${FIXED_PAGE_SIZE}`;
+        } else {
+            // Sử dụng FIXED_PAGE_SIZE
+            url += `?page=${page}&pageSize=${FIXED_PAGE_SIZE}`;
+        }
+
+        currentKeyword = keyword;
+        currentPage = page;
+
+        fetch(url)
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                return res.json();
+            })
+            .then(pageData => {
+                renderTable(pageData.content);
+                renderPagination(pageData);
+            })
+            .catch(err => {
+                console.error("Lỗi tải dữ liệu:", err);
+                alert("Lỗi kết nối hoặc tải dữ liệu từ server. Vui lòng kiểm tra console log.");
+            });
+    }
+
+    function handleSearch() {
+        loadUsers(0);
+    }
+
+    function resetSearch() {
+        document.getElementById("searchInput").value = "";
+        loadUsers(0);
+    }
+
+    // Hàm vẽ bảng dữ liệu
+    function renderTable(users) {
+        const tbody = document.getElementById("tableBody");
+        tbody.innerHTML = "";
+
+        if (!users || users.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4">Không có dữ liệu</td></tr>`;
+            return;
+        }
+
+        users.forEach(u => {
+            let dateStr = u.createdAt || "N/A";
+
+            // Xử lý định dạng ngày tạo: DD/MM/YYYY
+            if (dateStr !== "N/A") {
+                const datePart = dateStr.split('T')[0];
+                const parts = datePart.split('-');
+                dateStr = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+
+            // Xử lý Toggle Switch Status
+            const statusToggle = u.status
+                ? `<div class="form-check form-switch d-flex justify-content-center"><input class="form-check-input bg-success border-success" type="checkbox" checked onchange="toggleStatus(${u.userId}, false)"></div>`
+                : `<div class="form-check form-switch d-flex justify-content-center"><input class="form-check-input" type="checkbox" onchange="toggleStatus(${u.userId}, true)"></div>`;
+
+            const row = `
+                <tr>
+                    <td class="text-center fw-bold">${u.userId}</td>
+
+                    <td class="text-center"><span class="badge bg-secondary">${u.platform || 'OTHER'}</span></td>
+
+                    <td>${u.name}</td>
+
+                    <td class="text-center">${u.email}</td>
+                    <td class="text-center">${dateStr}</td>
+                    <td class="text-center">${statusToggle}</td>
+                    <td class="text-center">
+                        <a href="users_detail_form.html?id=${u.userId}" class="btn btn-sm btn-info text-white" title="Xem"><i class="fas fa-eye"></i></a>
+                        <a href="users_edit_form.html?id=${u.userId}" class="btn btn-sm btn-warning text-white" title="Sửa"><i class="fas fa-edit"></i></a>
+                        <button class="btn btn-sm btn-danger" onclick="deleteUser(${u.userId})" title="Xóa"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    }
+
+    // Hàm vẽ phân trang (renderPagination không đổi)
+    function renderPagination(pageData) {
+        const pagination = document.getElementById("pagination");
+        const pagingInfo = document.getElementById("pagingInfo");
+        pagination.innerHTML = "";
+
+        if (!pageData || pageData.totalPages <= 1) {
+            pagingInfo.innerHTML = pageData
+                ? `Hiển thị ${pageData.numberOfElements} trên tổng ${pageData.totalElements} người dùng.`
+                : 'Không có dữ liệu.';
+            return;
+        }
+
+        const totalPages = pageData.totalPages;
+        const currentPageIndex = pageData.number;
+
+        pagingInfo.innerHTML = `Trang ${currentPageIndex + 1} / ${totalPages}. Tổng ${pageData.totalElements} người dùng.`;
+
+        // Nút Previous
+        pagination.innerHTML += `
+            <li class="page-item ${pageData.first ? 'disabled' : ''}">
+                <a class="page-link" href="#" onclick="loadUsers(${currentPageIndex - 1})">Trước</a>
+            </li>
+        `;
+
+        // Các nút số trang
+        const startPage = Math.max(0, currentPageIndex - 2);
+        const endPage = Math.min(totalPages - 1, currentPageIndex + 2);
+
+        for (let i = startPage; i <= endPage; i++) {
+            pagination.innerHTML += `
+                <li class="page-item ${i === currentPageIndex ? 'active' : ''}">
+                    <a class="page-link" href="#" onclick="loadUsers(${i})">${i + 1}</a>
+                </li>
+            `;
+        }
+
+        // Nút Next
+        pagination.innerHTML += `
+            <li class="page-item ${pageData.last ? 'disabled' : ''}">
+                <a class="page-link" href="#" onclick="loadUsers(${currentPageIndex + 1})">Sau</a>
+            </li>
+        `;
+    }
+
+
+    function deleteUser(id) {
+        if (confirm(`Bạn chắc chắn muốn xóa User ID: ${id}?`)) {
+            fetch(`${API_URL}/${id}`, { method: 'DELETE' })
+                .then(res => {
+                    if (res.status === 204) {
+                        alert("Đã xóa thành công!");
+                        loadUsers(currentPage);
+                    } else {
+                        alert("Lỗi khi xóa! (Có thể ID không tồn tại hoặc lỗi server)");
+                    }
+                })
+                .catch(err => console.error("Lỗi Delete:", err));
+        }
+    }
+
+    // Logic để toggle Status (Gọi API PUT Update)
+    function toggleStatus(id, newStatus) {
+        fetch(`${API_URL}/${id}`)
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to fetch user');
+                return res.json();
+            })
+            .then(user => {
+                user.status = newStatus;
+
+                return fetch(`${API_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(user)
+                });
+            })
+            .then(res => {
+                if(!res.ok) {
+                    alert("Lỗi cập nhật trạng thái!");
+                    loadUsers(currentPage);
+                } else {
+                    console.log(`Updated status for user ${id} to ${newStatus}`);
+                }
+            })
+            .catch(err => {
+                console.error("Lỗi Toggle Status:", err);
+                alert("Lỗi không thể cập nhật trạng thái.");
+                loadUsers(currentPage);
+            });
+    }
+</script>
+</body>
+</html>
