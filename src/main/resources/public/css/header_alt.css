@@ -1,0 +1,182 @@
+/* =========================================
+   STYLE CHO HEADER ALT (STYLE 2) - FINAL FIX
+   Filename: header_alt.css
+   ========================================= */
+
+/* --- 1. Global Reset --- */
+.header-style-2 { font-family: 'Poppins', sans-serif; }
+.header-style-2 ul, .header-style-2 li { list-style: none !important; padding: 0; margin: 0; }
+.header-style-2 a { text-decoration: none; transition: 0.3s; }
+
+/* --- 2. HEADER MIDDLE (80px - Nền Đỏ) --- */
+.header-style-2 .header-middle-area {
+    background-color: #ff5252;
+    height: 80px;
+    display: flex;
+    align-items: center; /* Căn giữa dọc */
+}
+
+/* Search Box */
+.header-style-2 .search-form {
+    display: flex; background: #fff; height: 45px;
+    border-radius: 4px; overflow: hidden; border: none;
+}
+.header-style-2 .select-area select {
+    border: none; border-right: 1px solid #eee; height: 100%;
+    padding: 0 15px; outline: none; background: #fff; color: #555; cursor: pointer;
+}
+.header-style-2 .search-input { border: none; flex-grow: 1; padding: 0 15px; outline: none; font-size: 14px; }
+.header-style-2 .search-btn { background: #363f4d; color: #fff; border: none; padding: 0 25px; cursor: pointer; }
+.header-style-2 .search-btn:hover { background: #222; }
+
+/* Actions */
+.header-style-2 .header-actions { display: flex; justify-content: flex-end; align-items: center; gap: 20px; height: 100%; }
+.header-style-2 .action-item { position: relative; display: flex; align-items: center; height: 100%; }
+.header-style-2 .action-item > a { color: #fff; font-size: 24px; display: flex; align-items: center; }
+.header-style-2 .cart-count {
+    position: absolute; top: 20px; right: -10px;
+    background: #fff; color: #ff5252; font-size: 11px; font-weight: bold;
+    border-radius: 50%; width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+}
+
+/* User Dropdown */
+.header-style-2 .user-dropdown {
+    display: none; position: absolute; right: 0; top: 80%;
+    background: #fff; width: 200px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-top: 3px solid #ff5252; z-index: 1000; padding: 10px 0;
+}
+.header-style-2 .action-item:hover .user-dropdown { display: block; }
+.header-style-2 .user-dropdown li a { color: #333; padding: 8px 20px; display: block; }
+.header-style-2 .user-dropdown li a:hover { color: #ff5252; background: #f9f9f9; }
+
+
+/* --- 3. HEADER BOTTOM (57px - Nền Tối - CĂN GIỮA HOÀN TOÀN) --- */
+.header-style-2 .header-bottom-area {
+    background-color: #363f4d;
+    height: 57px;
+    position: relative;
+    z-index: 900;
+}
+
+/* Fix lỗi lệch: Đảm bảo tất cả thẻ bao ngoài đều cao 100% để align-items hoạt động */
+.header-style-2 .header-bottom-area .container-fluid,
+.header-style-2 .header-bottom-area .row,
+.header-style-2 .header-bottom-area .col-12 {
+    height: 100%;
+}
+
+.header-style-2 .main-menu-area {
+    height: 100%;
+    display: flex;
+    align-items: center; /* Căn giữa dọc container menu */
+}
+
+.header-style-2 .main-menu-area > nav {
+    height: 100%;
+    display: block;
+}
+
+.header-style-2 .main-menu-area > nav > ul {
+    display: flex;
+    height: 100%;
+    align-items: center; /* Căn giữa các thẻ LI */
+}
+
+.header-style-2 .main-menu-area > nav > ul > li {
+    height: 100%;
+    display: flex;
+    align-items: center; /* Căn giữa nội dung trong thẻ LI */
+    position: relative;
+}
+
+/* Link Menu */
+.header-style-2 .main-menu-area > nav > ul > li > a {
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 0 25px;
+    height: 100%;
+    display: flex;
+    align-items: center; /* Căn giữa Text trong thẻ A */
+    text-transform: uppercase;
+}
+
+.header-style-2 .main-menu-area > nav > ul > li > a:hover {
+    color: #ff5252;
+    background: rgba(0,0,0,0.1);
+}
+
+
+/* --- 4. STYLE CHUNG CHO CẢ DROPDOWN VÀ SUB-DROPDOWN --- */
+
+/* Định nghĩa style chung (Màu sắc, Shadow, Z-index) */
+.header-style-2 .cat-dropdown-alt,
+.header-style-2 .sub-dropdown-alt {
+    display: none; /* Ẩn mặc định */
+    position: absolute;
+    background: #fff;
+    width: 250px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    z-index: 9999;
+    flex-direction: column;
+    padding: 0;
+}
+
+/* Vị trí Dropdown Cấp 1 (Thả xuống từ menu ngang) */
+.header-style-2 .cat-dropdown-alt {
+    top: 100%;
+    left: 0;
+    border-top: 3px solid #ff5252; /* Viền đỏ bên trên */
+}
+
+/* Vị trí Sub-Dropdown (Bay sang phải từ menu cha) */
+.header-style-2 .sub-dropdown-alt {
+    top: 0;
+    left: 100%; /* Nằm bên phải */
+    border-left: 3px solid #ff5252; /* Viền đỏ bên trái */
+    border-top: 1px solid #eee;
+}
+
+/* Style chung cho các Item (LI) */
+.header-style-2 .cat-dropdown-alt li,
+.header-style-2 .sub-dropdown-alt li {
+    width: 100%;
+    border-bottom: 1px solid #f5f5f5;
+    position: relative; /* Để định vị sub-menu con của nó */
+}
+
+/* Style chung cho Link (A) */
+.header-style-2 .cat-dropdown-alt li a,
+.header-style-2 .sub-dropdown-alt li a {
+    color: #333 !important;
+    font-weight: 400;
+    font-size: 14px;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: auto; /* Reset chiều cao */
+    text-transform: capitalize; /* Viết hoa chữ cái đầu */
+    background: transparent;
+}
+
+/* Hover Effect chung */
+.header-style-2 .cat-dropdown-alt li a:hover,
+.header-style-2 .sub-dropdown-alt li a:hover {
+    color: #ff5252 !important;
+    background: #f9f9f9;
+    padding-left: 25px; /* Hiệu ứng đẩy chữ */
+}
+
+/* --- 5. LOGIC HIỂN THỊ (HOVER) --- */
+
+/* Hover vào LI cấp 1 -> Hiện Dropdown cấp 1 */
+.header-style-2 .has-dropdown:hover > .cat-dropdown-alt {
+    display: flex;
+}
+
+/* Hover vào LI trong Dropdown -> Hiện Sub-Dropdown */
+.header-style-2 .cat-dropdown-alt > li:hover > .sub-dropdown-alt {
+    display: flex;
+}

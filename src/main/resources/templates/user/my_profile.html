@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/user.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/header_alt :: header-alt-fragment}"></div>
+
+<div class="heading-banner">
+    <div class="container-fluid px-5">
+        <div class="breadcrumbs">
+            <a th:href="@{/}">Home</a> <i class="fa-solid fa-angle-right mx-2"></i> <span>My Profile</span>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid px-5 mb-5">
+    <div class="row">
+
+        <div class="col-lg-3 col-md-3 mb-4">
+            <div class="widget widget-shop-categories">
+                <h3 class="widget-shop-title">My Account</h3>
+                <div class="widget-content">
+                    <ul class="product-categories">
+                        <li><a class="active" th:href="@{/user/my_profile}"><i class="fa-solid fa-angle-right"></i> My Profile</a></li>
+                        <li><a href="#"><i class="fa-solid fa-angle-right"></i> My Orders</a></li>
+                        <li><a href="#"><i class="fa-solid fa-angle-right"></i> Change Password</a></li>
+                        <li><a href="#"><i class="fa-solid fa-angle-right"></i> Manage Address</a></li>
+                        <li><a href="#"><i class="fa-solid fa-angle-right"></i> Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9 col-md-9">
+            <div class="my_profile_area_detail">
+                <div class="checkout-title">
+                    <h3>My Profile</h3>
+                </div>
+
+                <form id="profile_form">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="wizard-form-input">
+                                <label>Full Name</label>
+                                <input type="text" id="user_name" name="name" value="Demo User">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="wizard-form-input">
+                                <label>Email Address</label>
+                                <input type="text" id="user_email" name="email" value="demo@example.com" readonly style="background: #eee;">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="wizard-form-input">
+                                <label>Phone Number</label>
+                                <input type="text" id="user_phone" name="phone" value="1234567890">
+                            </div>
+                        </div>
+                        <div class="col-md-4 mt-4">
+                            <input type="file" id="file" class="form-control">
+                        </div>
+                        <div class="col-md-2 mt-3 text-center">
+                            <img class="fileupload_img" th:src="@{/images/user-default.png}" alt="Avatar">
+                        </div>
+                        <div class="col-md-12 mt-4">
+                            <button type="submit" class="form-button">Save Changes</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer-fragment}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

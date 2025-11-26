@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="footer-fragment">
+    <div class="footer-container white-bg">
+        <div class="footer-top-area ptb-50" style="padding: 50px 0; background: #f9f9f9; border-top: 1px solid #eee;">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4 col-sm-6">
+                        <div class="single-footer">
+                            <div class="footer-logo">
+                                <a th:href="@{/}">
+                                    <img th:src="@{/images/logo.png}" alt="Logo" style="max-height: 50px; margin-bottom: 20px;">
+                                </a>
+                            </div>
+                            <div class="footer-content">
+                                <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry...</p>
+                                <div class="contact">
+                                    <p><label>Address:</label> 3rd floor, Shyam Complex, Rajkot - 360005</p>
+                                    <p><label>Phone:</label> <a href="tel:+919227777522">+91 922 7777 522</a></p>
+                                    <p><label>Email:</label> <a href="mailto:info@viaviweb.com">info@viaviweb.com</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-6">
+                        <div class="single-footer mt-10">
+                            <div class="footer-title"><h3>About</h3></div>
+                            <ul class="footer-info">
+                                <li><i class="fa-solid fa-angle-double-right"></i> <a href="#">About Us</a></li>
+                                <li><i class="fa-solid fa-angle-double-right"></i> <a href="#">Privacy</a></li>
+                                <li><i class="fa-solid fa-angle-double-right"></i> <a href="#">Terms</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-6">
+                        <div class="single-footer mt-10">
+                            <div class="footer-title"><h3>My Account</h3></div>
+                            <ul class="footer-info">
+                                <li><i class="fa-solid fa-angle-double-right"></i> <a th:href="@{/user/my_profile}">My Profile</a></li>
+                                <li><i class="fa-solid fa-angle-double-right"></i> <a href="#">My Orders</a></li>
+                                <li><i class="fa-solid fa-angle-double-right"></i> <a href="#">Wishlist</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-6">
+                        <div class="single-footer mt-10">
+                            <div class="footer-title"><h3>Follow Us</h3></div>
+                            <ul class="socil-icon mb-40" style="display: flex; gap: 10px; font-size: 20px;">
+                                <li><a href="#"><i class="fa-brands fa-facebook"></i></a></li>
+                                <li><a href="#"><i class="fa-brands fa-twitter"></i></a></li>
+                                <li><a href="#"><i class="fa-brands fa-instagram"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
