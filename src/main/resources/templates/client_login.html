@@ -30,7 +30,6 @@
             border-radius: 6px;
             padding: 38px 36px 32px 36px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            /* ❌ Bỏ animation gây nhảy */
         }
 
         .auth-title {
@@ -130,7 +129,7 @@
             <span>Đăng nhập</span>
         </div>
 
-        <!-- ⚠ URL xử lý login phải trùng loginProcessingUrl("/login") -->
+        <!-- URL xử lý login phải trùng loginProcessingUrl("/login") -->
         <form th:action="@{/login}" method="post">
             <input type="hidden" name="loginType" value="CLIENT"/>
 

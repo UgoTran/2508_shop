@@ -21,5 +21,4 @@ HELP.md
 .springBeans
 .sts4-cache
 src/main/resources/application-dev.properties
-src/main/resources/application.properties
 
