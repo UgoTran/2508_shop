@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm mới sản phẩm</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-success text-white">
+            <h3>Thêm mới sản phẩm</h3>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/admin/products/save}" th:object="${product}" method="post">
+
+                <div class="mb-3">
+                    <label class="form-label">Tên sản phẩm (*)</label>
+                    <input type="text" th:field="*{productName}" class="form-control" required placeholder="Nhập tên sản phẩm">
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Danh mục</label>
+                        <input type="text" th:field="*{categoryName}" class="form-control" placeholder="Ví dụ: Điện thoại, Laptop">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Loại sản phẩm</label>
+                        <input type="text" th:field="*{productType}" class="form-control" placeholder="Ví dụ: Gaming, Văn phòng">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Giá bán (*)</label>
+                    <input type="number" th:field="*{productPrice}" class="form-control" required min="0" placeholder="Nhập giá">
+                </div>
+
+                <div class="mb-3 form-check">
+                    <input type="checkbox" th:field="*{active}" class="form-check-input" id="isActive">
+                    <label class="form-check-label" for="isActive">Kích hoạt sản phẩm ngay</label>
+                </div>
+
+                <div class="text-end">
+                    <a th:href="@{/admin/products}" class="btn btn-secondary">Hủy</a>
+                    <button type="submit" class="btn btn-success">Lưu sản phẩm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

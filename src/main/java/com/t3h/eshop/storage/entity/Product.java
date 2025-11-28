@@ -11,36 +11,34 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Entity
-@Table(name = "product")
+@Table(name = "products")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Product {
+    //ID sản phẩm
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
     private Integer productId;
 
-    @Column(name = "title", nullable = false, columnDefinition = "TEXT")
-    private String title;
+    //Tên sản phẩm, cột này không thể null được
+    @Column(name = "product_name", nullable = false)
+    private String productName;
 
-    @Column(name = "category_brand_id")
-    private Integer categoryBrandId;
+    @Column(name = "category_name")
+    private String categoryName;
 
-    @Column(name = "short_description", columnDefinition = "TEXT")
-    private String shortDescription;
+    @Column(name = "product_type")
+    private String productType;
 
-    @Column(name = "product_features", columnDefinition = "TEXT")
-    private String productFeatures;
+    @Column(nullable = false)
+    private BigDecimal productPrice;
 
-    @Column(name = "selling_price")
-    private Float sellingPrice;
-
-    @Column(name = "image1", columnDefinition = "TEXT")
-    private String image1;
-
-    @Column(name = "image2", columnDefinition = "TEXT")
-    private String image2;
+    @Column(name = "is_active")
+    private boolean isActive;
 }
