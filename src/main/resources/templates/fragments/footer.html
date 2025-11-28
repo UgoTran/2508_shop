@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="footer-fragment">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+
+    <footer>
+        <div class="footer-container white-bg">
+
+            <div class="footer-top-area">
+                <div class="container-fluid px-5">
+                    <div class="row">
+
+                        <div class="col-md-4 col-sm-6">
+                            <div class="single-footer">
+                                <div class="footer-logo">
+                                    <a th:href="@{/}">
+                                        <img th:src="@{/images/logo.png}" alt="E-Shop Logo">
+                                    </a>
+                                </div>
+                                <div class="footer-content">
+                                    <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.</p>
+                                    <div class="contact">
+                                        <p><label>Address:</label> <span>3rd floor, Shyam Complex, Rajkot - 360005</span></p>
+                                        <p><label>Phone:</label> <a href="tel:+919227777522">+91 922 7777 522</a></p>
+                                        <p><label>Email:</label> <a href="mailto:info@viaviweb.com">info@viaviweb.com</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 col-sm-6">
+                            <div class="single-footer mt-10">
+                                <div class="footer-title">
+                                    <h3>About</h3>
+                                </div>
+                                <ul class="footer-info">
+                                    <li><i class="fa-solid fa-angles-right"></i> <a href="#">About Us</a></li>
+                                    <li><i class="fa-solid fa-angles-right"></i> <a href="#">Terms of Use</a></li>
+                                    <li><i class="fa-solid fa-angles-right"></i> <a href="#">Privacy Policy</a></li>
+                                    <li><i class="fa-solid fa-angles-right"></i> <a href="#">Refund Policy</a></li>
+                                    <li><i class="fa-solid fa-angles-right"></i> <a href="#">Payment Methods</a></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 col-sm-6">
+                            <div class="single-footer mt-10">
+                                <div class="footer-title">
+                                    <h3>My Account</h3>
+                                </div>
+                                <ul class="footer-info">
+                                    <li><i class="fa-solid fa-angles-right"></i> <a th:href="@{/user/my_profile}">My Profile</a></li>
+                                    <li><i class="fa-solid fa-angles-right"></i> <a href="#">My Orders</a></li>
+                                    <li><i class="fa-solid fa-angles-right"></i> <a th:href="@{/cart}">Shopping Cart</a></li>
+                                    <li><i class="fa-solid fa-angles-right"></i> <a href="#">Wishlist</a></li>
+                                    <li><i class="fa-solid fa-angles-right"></i> <a href="#">FAQ</a></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 col-sm-6">
+                            <div class="single-footer mt-10">
+                                <div class="footer-title">
+                                    <h3>Follow Us</h3>
+                                </div>
+                                <ul class="socil-icon">
+                                    <li><a href="#"><i class="fa-brands fa-facebook-f"></i></a></li>
+                                    <li><a href="#"><i class="fa-brands fa-twitter"></i></a></li>
+                                    <li><a href="#"><i class="fa-brands fa-instagram"></i></a></li>
+                                    <li><a href="#"><i class="fa-brands fa-youtube"></i></a></li>
+                                </ul>
+
+                                <div class="footer-title">
+                                    <h3>Download Apps</h3>
+                                </div>
+                                <div class="footer-content app-links">
+                                    <a href="#" target="_blank">
+                                        <img src="https://shopping.viavilab.com/assets/images/google-play.png" alt="Google Play">
+                                    </a>
+                                    <a href="#" target="_blank">
+                                        <img src="https://shopping.viavilab.com/assets/images/app-store.png" alt="App Store">
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom-area">
+                <div class="container-fluid px-5">
+                    <div class="row align-items-center">
+                        <div class="col-md-6 col-sm-6">
+                            <div class="copyright-text">
+                                <p>Copyright © 2025 <a href="#">E-Shop</a>. All Rights Reserved.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <div class="payment-img text-end text-right">
+                                <img src="https://shopping.viavilab.com/assets/site_assets/img/payment/payment.png" alt="Payment Methods">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </footer>
+</div>
+</body>
+</html>
