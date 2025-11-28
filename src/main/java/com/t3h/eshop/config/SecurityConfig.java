@@ -11,6 +11,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 
 @Configuration
@@ -27,28 +31,50 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/css/**", "/js/**").permitAll()
+                        // Các trang public (không cần đăng nhập)
+                        .requestMatchers("/", "/index", "/index2", "/login/**", "/css/**", "/js/**", "/images/**").permitAll()
+
+                        // Phân quyền login theo folder
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/user/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers("/client/**").hasAnyRole("ADMIN", "USER")
+
+                        // Mọi request khác đều cần login
                         .anyRequest().authenticated()
                 )
                 .formLogin(f -> f
-                        .loginPage("/login")
-                        .loginProcessingUrl("/process-login")
-                        .defaultSuccessUrl("/home", true)
-                        .failureUrl("/login?error=true")
+                        .loginPage("/login/client")
+                        .loginProcessingUrl("/login")
+                        .successHandler((request, response, authentication) -> {
+                            String loginType = request.getParameter("loginType");
+
+                            boolean isAdmin = authentication.getAuthorities().stream()
+                                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+                            // User cố tình đăng nhập vào form admin
+                            if ("ADMIN".equalsIgnoreCase(loginType) && !isAdmin) {
+                                request.getSession().invalidate(); // hủy sesion
+                                response.sendRedirect("/login/admin?roleError=true");
+                                return;
+                            }
+
+                            if (isAdmin) {
+                                response.sendRedirect("/admin");   // dashboard admin
+                            } else {
+                                response.sendRedirect("/");        // trang client
+                            }
+                        })
+                        .failureHandler(customFailureHandler())
                         .permitAll()
                 )
                 .logout(l -> l
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout=true")
-                        .deleteCookies("JSESSIONID")
-                        .invalidateHttpSession(true)
+                        .logoutSuccessUrl("/login/client?logout=true")
                         .permitAll()
                 );
 
         return http.build();
     }
+
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
@@ -59,4 +85,24 @@ public class SecurityConfig {
 
         return authBuilder.build();
     }
+
+    @Bean
+    public AuthenticationFailureHandler customFailureHandler() {
+        return (request, response, exception) -> {
+            String username = request.getParameter("username");
+            String loginType = request.getParameter("loginType");
+
+            String baseUrl;
+            if ("ADMIN".equalsIgnoreCase(loginType)) {
+                baseUrl = "/login/admin";
+            } else {
+                baseUrl = "/login/client";
+            }
+
+            String encodedUsername = username != null ? URLEncoder.encode(username, StandardCharsets.UTF_8) : "";
+
+            response.sendRedirect(baseUrl + "?error=true&username=" + encodedUsername);
+        };
+    }
+
 }

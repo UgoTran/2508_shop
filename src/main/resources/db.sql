@@ -80,3 +80,5 @@ VALUES (2, 2),
        (8, 2),
        (9, 2),
        (10, 2);
+
+SELECT * FROM user_role WHERE user_id = 1;
