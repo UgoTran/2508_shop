@@ -1,13 +1,12 @@
 package com.t3h.eshop.controller.api;
 
 import com.t3h.eshop.service.UserService;
+import com.t3h.eshop.storage.dto.ResponseDTO;
 import com.t3h.eshop.storage.dto.UserProfileReq;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -17,24 +16,33 @@ public class UserApiController {
     private UserService userService;
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateProfile(@RequestBody UserProfileReq req) {
-        Map<String, String> response = new HashMap<>();
+    public ResponseEntity<ResponseDTO<Void>> updateProfile(@RequestBody UserProfileReq req) {
         try {
             req.setUserId(1);
 
             userService.updateUserProfile(req);
 
-            response.put("status", "success");
-            response.put("message", "Cập nhật thành công!");
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(
+                    ResponseDTO.<Void>builder()
+                            .httpCode(200)
+                            .message("Cập nhật thành công!")
+                            .build()
+            );
+
         } catch (IllegalArgumentException e) {
-            response.put("status", "error");
-            response.put("message", e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.badRequest().body(
+                    ResponseDTO.<Void>builder()
+                            .httpCode(400)
+                            .message(e.getMessage())
+                            .build()
+            );
         } catch (Exception e) {
-            response.put("status", "error");
-            response.put("message", "Lỗi hệ thống: " + e.getMessage());
-            return ResponseEntity.internalServerError().body(response);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    ResponseDTO.<Void>builder()
+                            .httpCode(500)
+                            .message("Lỗi hệ thống: " + e.getMessage())
+                            .build()
+            );
         }
     }
 }

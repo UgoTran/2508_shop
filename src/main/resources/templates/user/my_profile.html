@@ -111,10 +111,8 @@
         })
         .then(response => response.json()) // Đọc phản hồi JSON từ Server
         .then(result => {
-            if (result.status === 'success') {
-                alert(result.message); // "Cập nhật thành công!"
-                // Có thể reload trang để cập nhật ảnh nếu có
-                // location.reload();
+            if (result.httpCode === 200) {
+                alert(result.message);
             } else {
                 alert('Lỗi: ' + result.message);
             }
