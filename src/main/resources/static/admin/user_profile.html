@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Người Dùng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            padding-top: 20px;
+            background-color: #f8f9fa;
+        }
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0"><i class="bi bi-person-circle"></i> Chi Tiết Người Dùng</h4>
+                </div>
+                <div class="card-body">
+
+                    <div id="loadingStatus" class="text-center">
+                        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div> Đang tải dữ liệu...
+                    </div>
+
+                    <div id="userDetails" style="display: none;">
+                        <div class="text-center mb-4">
+                            <img id="userImage" src="placeholder.png" alt="Ảnh Đại Diện" class="profile-image">
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <span class="info-label">ID:</span> <span id="userId"></span>
+                            </li>
+                            <li class="list-group-item">
+                                <span class="info-label">Tên Đăng Nhập:</span> <span id="username"></span>
+                            </li>
+                            <li class="list-group-item">
+                                <span class="info-label">Họ và Tên:</span> <span id="name"></span>
+                            </li>
+                            <li class="list-group-item">
+                                <span class="info-label">Email:</span> <span id="email"></span>
+                            </li>
+                            <li class="list-group-item">
+                                <span class="info-label">Số Điện Thoại:</span> <span id="phoneNumber"></span>
+                            </li>
+                            <li class="list-group-item">
+                                <span class="info-label">Trạng Thái:</span> <span id="isBanStatus"></span>
+                            </li>
+                            <li class="list-group-item">
+                                <span class="info-label">Ngày Tạo:</span> <span id="createdAt"></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                    <a href="/admin/users" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left-circle-fill"></i> Quay Lại
+                    </a>
+                    <a href="#" class="btn btn-warning" id="editLink">
+                        <i class="bi bi-pencil-square"></i> Chỉnh Sửa
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const API_BASE_URL = '/api/users';
+    const loadingStatus = document.getElementById('loadingStatus');
+    const userDetails = document.getElementById('userDetails');
+
+    /**
+     * Lấy ID người dùng từ URL
+     */
+    function getUserIdFromUrl() {
+        const path = window.location.pathname;
+        const parts = path.split('/');
+        // Giả định URL là /admin/users/profile/{id}
+        const id = parts[parts.length - 1];
+        return parseInt(id) > 0 ? parseInt(id) : null;
+    }
+
+    /**
+     * Tải dữ liệu hồ sơ người dùng
+     * @param {number} id
+     */
+    async function fetchUserProfile(id) {
+        loadingStatus.style.display = 'block';
+        userDetails.style.display = 'none';
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/profile/${id}`);
+            if (!response.ok) {
+                throw new Error('Không tìm thấy người dùng hoặc lỗi server.');
+            }
+            const user = await response.json();
+            displayUserDetails(user);
+
+            loadingStatus.style.display = 'none';
+            userDetails.style.display = 'block';
+
+        } catch (error) {
+            console.error('Lỗi tải dữ liệu:', error);
+            loadingStatus.innerHTML = `<div class="alert alert-danger"><i class="bi bi-exclamation-octagon-fill"></i> ${error.message}</div>`;
+        }
+    }
+
+    /**
+     * Hiển thị chi tiết người dùng lên giao diện
+     * @param {object} user - UserResponse DTO
+     */
+    function displayUserDetails(user) {
+        document.getElementById('userId').textContent = user.userId;
+        document.getElementById('username').textContent = user.username;
+        document.getElementById('name').textContent = user.name || 'N/A';
+        document.getElementById('email').textContent = user.email;
+        document.getElementById('phoneNumber').textContent = user.phoneNumber;
+        document.getElementById('userImage').src = user.image || 'https://via.placeholder.com/150?text=No+Image';
+
+        // Xử lý trường isBan
+        const isBanned = user.isBan === 1;
+        const isBanStatus = isBanned ? 'BỊ CẤM' : 'HOẠT ĐỘNG';
+        const badgeClass = isBanned ? 'bg-danger' : 'bg-success';
+        document.getElementById('isBanStatus').innerHTML = `<span class="badge ${badgeClass} fs-6">${isBanStatus}</span>`;
+
+        // Xử lý trường createdAt
+        const createdAtElement = document.getElementById('createdAt');
+        if (user.createdAt) {
+            createdAtElement.textContent = new Date(user.createdAt).toLocaleString('vi-VN');
+        } else {
+            createdAtElement.textContent = 'N/A';
+        }
+
+        // Cập nhật link chỉnh sửa
+        const editLink = document.getElementById('editLink');
+        editLink.href = `/admin/users/edit/${user.userId}`;
+    }
+
+    /**
+     * Hàm chính khởi động
+     */
+    document.addEventListener('DOMContentLoaded', () => {
+        const userId = getUserIdFromUrl();
+
+        if (userId) {
+            fetchUserProfile(userId);
+        } else {
+            // Xử lý trường hợp URL không có ID hợp lệ
+            const loadingStatus = document.getElementById('loadingStatus');
+            loadingStatus.innerHTML = `
+                <div class="alert alert-danger" role="alert">
+                    <h4 class="alert-heading"><i class="bi bi-exclamation-octagon-fill"></i> Lỗi URL</h4>
+                    <p>ID người dùng không hợp lệ trong đường dẫn URL.</p>
+                    <hr>
+                    <a href="/admin/users" class="btn btn-danger"><i class="bi bi-arrow-left-circle"></i> Quay Lại Danh Sách</a>
+                </div>
+            `;
+            document.getElementById('userDetails').style.display = 'none';
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chỉnh Sửa Người Dùng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body { padding-top: 20px; background-color: #f0f8ff; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="card shadow-lg border-warning">
+                <div class="card-header bg-warning text-dark text-center">
+                    <h4 class="mb-0"><i class="bi bi-pencil-square"></i> Chỉnh Sửa Người Dùng: <span id="usernameDisplay">...</span></h4>
+                </div>
+                <div class="card-body">
+
+                    <div id="loadingStatus" class="text-center">
+                        <div class="spinner-border text-warning" role="status"><span class="visually-hidden">Loading...</span></div> Đang tải dữ liệu người dùng...
+                    </div>
+
+                    <form id="editUserForm" style="display: none;">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Tên Đăng Nhập</label>
+                            <input type="text" class="form-control" id="username" name="username" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Họ và Tên</label>
+                            <input type="text" class="form-control" id="name" name="name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email (*)</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phoneNumber" class="form-label">Số Điện Thoại (*)</label>
+                            <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="image" class="form-label">URL Ảnh Đại Diện</label>
+                            <input type="text" class="form-control" id="image" name="image">
+                        </div>
+
+                        <div class="mb-3 form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="isBan" name="isBan" role="switch">
+                            <label class="form-check-label" for="isBan">Tài khoản này có bị cấm không?</label>
+                            <small class="form-text text-muted">(Bỏ chọn: Hoạt động. Chọn: Bị cấm)</small>
+                        </div>
+
+                        <div id="alertMessage" class="mt-3"></div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="/admin/users" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left-circle-fill"></i> Quay Lại
+                            </a>
+                            <button type="submit" class="btn btn-warning" id="submitBtn">
+                                <i class="bi bi-save-fill"></i> Lưu Thay Đổi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const API_BASE_URL = '/api/users';
+    const form = document.getElementById('editUserForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const alertContainer = document.getElementById('alertMessage');
+    const loadingStatus = document.getElementById('loadingStatus');
+    let userId = null; // Biến lưu ID người dùng
+
+    /**
+     * Lấy ID người dùng từ URL
+     */
+    function getUserIdFromUrl() {
+        const path = window.location.pathname;
+        const parts = path.split('/');
+        // Giả định URL là /admin/users/edit/{id}
+        const id = parts[parts.length - 1];
+        return parseInt(id) > 0 ? parseInt(id) : null;
+    }
+
+    /**
+     * Tải dữ liệu người dùng và điền vào form
+     * @param {number} id
+     */
+    async function loadUserData(id) {
+        loadingStatus.style.display = 'block';
+        form.style.display = 'none';
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/profile/${id}`);
+            if (!response.ok) {
+                throw new Error('Không tìm thấy người dùng hoặc lỗi server.');
+            }
+            const user = await response.json();
+
+            // Điền dữ liệu vào form
+            document.getElementById('usernameDisplay').textContent = user.username;
+            document.getElementById('username').value = user.username;
+            document.getElementById('name').value = user.name || '';
+            document.getElementById('email').value = user.email;
+            document.getElementById('phoneNumber').value = user.phoneNumber;
+            document.getElementById('image').value = user.image || '';
+
+            // Bổ sung: Điền trạng thái isBan
+            document.getElementById('isBan').checked = user.isBan === 1;
+
+            loadingStatus.style.display = 'none';
+            form.style.display = 'block';
+
+        } catch (error) {
+            console.error('Lỗi tải dữ liệu:', error);
+            loadingStatus.innerHTML = `<div class="alert alert-danger"><i class="bi bi-exclamation-octagon-fill"></i> ${error.message}</div>`;
+        }
+    }
+
+    /**
+     * Xử lý sự kiện submit form
+     */
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Lấy trạng thái mới của Switch (checkbox)
+        const isBanChecked = document.getElementById('isBan').checked;
+
+        // Chuẩn bị dữ liệu update
+        const updateData = {
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            phoneNumber: document.getElementById('phoneNumber').value,
+            image: document.getElementById('image').value,
+            // Bổ sung: Gửi trạng thái isBan mới
+            isBan: isBanChecked ? 1 : 0
+        };
+
+        // Hiển thị trạng thái tải
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang lưu...';
+        alertContainer.innerHTML = '';
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/edit/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updateData),
+            });
+
+            const responseData = await response.json();
+
+            if (response.ok) { // 200 OK
+                alertContainer.innerHTML = `<div class="alert alert-success"><i class="bi bi-check-circle-fill"></i> Cập nhật người dùng **${responseData.username}** thành công!</div>`;
+
+                // Tùy chọn: chuyển hướng sau 2 giây
+                setTimeout(() => {
+                    window.location.href = '/admin/users';
+                }, 2000);
+
+            } else {
+                const errorMessage = responseData.message || 'Lỗi không xác định khi cập nhật người dùng.';
+                alertContainer.innerHTML = `<div class="alert alert-danger"><i class="bi bi-x-octagon-fill"></i> Lỗi: ${errorMessage}</div>`;
+            }
+
+        } catch (error) {
+            console.error('Lỗi mạng hoặc lỗi không xác định:', error);
+            alertContainer.innerHTML = `<div class="alert alert-danger"><i class="bi bi-exclamation-triangle-fill"></i> Đã xảy ra lỗi mạng. Vui lòng thử lại.</div>`;
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="bi bi-save-fill"></i> Lưu Thay Đổi';
+        }
+    });
+
+    // Khởi động
+    document.addEventListener('DOMContentLoaded', () => {
+        userId = getUserIdFromUrl();
+
+        if (userId) {
+            loadUserData(userId);
+        } else {
+            loadingStatus.innerHTML = `<div class="alert alert-danger"><i class="bi bi-exclamation-octagon-fill"></i> Lỗi: ID người dùng không hợp lệ.</div>`;
+        }
+    });
+</script>
+</body>
+</html>
