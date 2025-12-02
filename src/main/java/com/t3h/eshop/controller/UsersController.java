@@ -1,7 +1,7 @@
-package com.Users.users.Controller;
+package com.t3h.eshop.controller;
 
-import com.Users.users.Service.UsersService;
-import com.Users.users.Storage.entity.Users;
+import com.t3h.eshop.service.UsersService;
+import com.t3h.eshop.storage.entity.Users;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;

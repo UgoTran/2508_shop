@@ -1,4 +1,4 @@
-package com.Users.users.Storage.entity;
+package com.t3h.eshop.storage.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;

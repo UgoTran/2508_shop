@@ -1,7 +1,7 @@
-package com.Users.users.Service;
+package com.t3h.eshop.service;
 
 
-import com.Users.users.Storage.entity.Users;
+import com.t3h.eshop.storage.entity.Users;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 

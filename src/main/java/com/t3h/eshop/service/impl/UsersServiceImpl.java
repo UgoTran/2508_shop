@@ -1,8 +1,8 @@
-package com.Users.users.Service.impl;
+package com.t3h.eshop.service.impl;
 
-import com.Users.users.Service.UsersService;
-import com.Users.users.Storage.entity.Users;
-import com.Users.users.Storage.repository.UsersRepository;
+import com.t3h.eshop.service.UsersService;
+import com.t3h.eshop.storage.entity.Users;
+import com.t3h.eshop.storage.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

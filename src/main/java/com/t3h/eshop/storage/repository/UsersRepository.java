@@ -1,6 +1,6 @@
-package com.Users.users.Storage.repository;
+package com.t3h.eshop.storage.repository;
 
-import com.Users.users.Storage.entity.Users;
+import com.t3h.eshop.storage.entity.Users;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
