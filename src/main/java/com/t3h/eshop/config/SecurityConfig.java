@@ -22,6 +22,12 @@ import java.nio.charset.StandardCharsets;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private static final String[] PREMIT_URLS = {
+            "/", "/api/public/**", "/index",
+            "/index2", "/login/**",
+            "/css/**", "/js/**", "/images/**"
+    };
+
     private final CustomUserDetailsService customUserDetailsService;
 
     private final PasswordEncoder passwordEncoder;
@@ -32,7 +38,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         // Các trang public (không cần đăng nhập)
-                        .requestMatchers("/", "/index", "/index2", "/login/**", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers(PREMIT_URLS).permitAll()
 
                         // Phân quyền login theo folder
                         .requestMatchers("/admin/**").hasRole("ADMIN")
@@ -57,11 +63,7 @@ public class SecurityConfig {
                                 return;
                             }
 
-                            if (isAdmin) {
-                                response.sendRedirect("/admin");   // dashboard admin
-                            } else {
-                                response.sendRedirect("/");        // trang client
-                            }
+                            response.sendRedirect(isAdmin ? "/admin" : "/"); // nếu là admin cho qua trang admin
                         })
                         .failureHandler(customFailureHandler())
                         .permitAll()
