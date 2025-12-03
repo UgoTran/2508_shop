@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng nhập Quản trị</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #eef2ff;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-box {
+            width: 420px; /* rộng hơn để layout đẹp */
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 38px 42px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, .12);
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 26px;
+            color: #1f2d5a;
+        }
+
+        .msg-error {
+            font-size: 14px;
+            color: #d60000;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .msg-success {
+            font-size: 14px;
+            color: #00a152;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            color: #2b2b2b;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 44px;
+            font-size: 15px;
+            padding: 0 14px;
+            border-radius: 6px;
+            border: 1px solid #c7c7c7;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #304ffe;
+            box-shadow: 0 0 0 2px rgba(48, 79, 254, 0.15);
+        }
+
+        .btn-submit {
+            width: 100%;
+            height: 44px;
+            border-radius: 6px;
+            border: none;
+            font-weight: bold;
+            font-size: 16px;
+            background: #304ffe;
+            color: white;
+            cursor: pointer;
+            transition: .25s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-submit:hover {
+            background: #2039f2;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="login-box">
+
+    <h2>Đăng nhập quản trị</h2>
+
+    <!-- Sai tài khoản -->
+
+    <!-- Đăng xuất thành công -->
+    <p class="msg-success" th:if="${param.logout}">Đăng xuất thành công</p>
+
+    <form th:action="@{/login}" method="post">
+        <input type="hidden" name="loginType" value="ADMIN"/>
+
+        <div class="form-group">
+            <label for="username">Tài khoản</label>
+            <input class="form-input" type="text"
+                   id="username"
+                   name="username"
+                   th:value="${param.username}"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Mật khẩu</label>
+            <input class="form-input" id="password" name="password" type="password" required>
+        </div>
+
+        <p class="msg-error" th:if="${param.error}">Sai tài khoản hoặc mật khẩu</p>
+
+        <p class="msg-error" th:if="${param.roleError}">
+            Tài khoản của bạn không có quyền đăng nhập trang quản trị
+        </p>
+
+        <button type="submit" class="btn-submit">Đăng nhập</button>
+
+    </form>
+
+</div>
+
+</body>
+</html>
