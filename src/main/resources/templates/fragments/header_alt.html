@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="header-alt-fragment" class="header-style-2">
+
+    <link rel="stylesheet" th:href="@{/css/header_alt.css}">
+
+    <div class="header-middle-area">
+        <div class="container-fluid px-5">
+            <div class="row align-items-center" style="height: 100%;">
+                <div class="col-md-3 col-sm-3">
+                    <div class="logo">
+                        <a th:href="@{/}">
+                            <img th:src="@{/images/logo1.png}" alt="Logo" style="max-height: 50px;">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-7 col-sm-6">
+                    <div class="search-box-area">
+                        <form action="#" method="get" class="search-form">
+                            <div class="select-area">
+                                <select name="category">
+                                    <option value="all">All Categories</option>
+                                </select>
+                            </div>
+                            <input type="text" placeholder="Search here..." class="search-input">
+                            <button type="submit" class="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-3">
+                    <ul class="header-actions">
+                        <li class="action-item user-dropdown-wrap">
+                            <a href="#"><i class="fa-regular fa-user"></i></a>
+                            <ul class="user-dropdown">
+                                <li><a th:href="@{/login}">Login & Register</a></li>
+                            </ul>
+                        </li>
+                        <li class="action-item cart-dropdown-wrap">
+                            <a th:href="@{/cart}"><i class="fa-solid fa-cart-shopping"></i><span class="cart-count">0</span></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-bottom-area header-sticky">
+        <div class="container-fluid px-5">
+            <div class="row">
+                <div class="col-12">
+                    <div class="main-menu-area">
+                        <nav>
+                            <ul>
+                                <li><a th:href="@{/}">HOME</a></li>
+
+                                <li class="has-dropdown">
+                                    <a href="#" style="color: #ff5252;">CATEGORIES </a>
+
+                                    <ul class="cat-dropdown-alt">
+                                        <li>
+                                            <a th:href="@{/category/jewellery}">Jewellery <i class="fa-solid fa-angle-right float-end"></i></a>
+                                            <ul class="sub-dropdown-alt">
+                                                <li><a th:href="@{/category/jewellery/necklaces}">Necklaces</a></li>
+                                                <li><a th:href="@{/category/jewellery/bangle}">Bangle & Bracelets</a></li>
+                                            </ul>
+                                        </li>
+                                        <li>
+                                            <a th:href="@{/category/home-appliance}">Home Appliance <i class="fa-solid fa-angle-right float-end"></i></a>
+                                            <ul class="sub-dropdown-alt">
+                                                <li><a th:href="@{/category/home/decor}">Home & Decor</a></li>
+                                                <li><a th:href="@{/category/home/fridge}">Refrigerator</a></li>
+                                            </ul>
+                                        </li>
+                                        <li><a th:href="@{/category/footwear}">Footwear</a></li>
+                                        <li><a th:href="@{/category/electronics}">Electronics</a></li>
+                                        <li><a th:href="@{/category/clothing}">Clothing</a></li>
+                                        <li><a th:href="@{/category/beauty}">Beauty & Health</a></li>
+                                    </ul>
+                                </li>
+
+                                <li><a th:href="@{/offer}">OFFER</a></li>
+                                <li><a th:href="@{/deals}">TODAY DEALS</a></li>
+                                <li><a th:href="@{/contact}">CONTACT US</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
