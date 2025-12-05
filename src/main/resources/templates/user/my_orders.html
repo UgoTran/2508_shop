@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Orders</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" th:href="@{/css/user.css}">     <link rel="stylesheet" th:href="@{/css/my_order.css}"> <link rel="stylesheet" th:href="@{/css/header_alt.css}"> </head>
+<body>
+
+<div th:replace="~{fragments/header_alt :: header-alt-fragment}"></div>
+
+<div class="heading-banner">
+    <div class="container-fluid px-5">
+        <div class="breadcrumbs">
+            <a th:href="@{/}">Home</a> <i class="fa-solid fa-angle-right mx-2"></i> <span>My Orders</span>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid px-5 mb-5">
+    <div class="row">
+
+        <div class="col-lg-3 col-md-3 mb-4">
+            <div class="widget widget-shop-categories">
+                <h3 class="widget-shop-title">My Account</h3>
+                <div class="widget-content">
+                    <ul class="product-categories">
+                        <li><a th:href="@{/user/my_profile}"><i class="fa-solid fa-angle-right"></i> My Profile</a></li>
+                        <li><a class="active" th:href="@{/user/my_orders}"><i class="fa-solid fa-angle-right"></i> My Orders</a></li>
+                        <li><a href="#"><i class="fa-solid fa-angle-right"></i> Change Password</a></li>
+                        <li><a href="#"><i class="fa-solid fa-angle-right"></i> Manage Address</a></li>
+                        <li><a href="#"><i class="fa-solid fa-angle-right"></i> Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9 col-md-9">
+            <div class="product_order_part">
+
+                <div class="order_part_block" th:each="order : ${orders}">
+
+                    <div class="order_detail_track">
+                        <div>
+                            <span class="order-id-badge" th:text="${order.id}">ORD12345</span>
+                        </div>
+                        <div class="text-muted" style="font-size: 13px;">
+                            Delivery expected by <span th:text="${order.expectedDate}">May 01</span>
+                        </div>
+                        <a href="#" class="order_track_btn">
+                            <i class="fa-solid fa-location-dot"></i> Track
+                        </a>
+                    </div>
+
+                    <div class="track_order_details_part">
+
+                        <div class="details_part_product_single_item_address_part"
+                             th:each="item : ${order.items}"
+                             th:id="'item-row-' + ${item.id}">
+
+                            <div class="product-img-wrap">
+                                <img th:src="@{'/images/' + ${item.image}}" alt="Product Image">
+                            </div>
+
+                            <div class="d-flex justify-content-between w-100 align-items-start">
+                                <div class="product-info">
+                                    <h4 th:text="${item.name}">Product Name</h4>
+                                    <div class="product-meta">
+                                        <p>Price: <span th:text="${'$' + item.price}">$10.00</span></p>
+                                        <p>Qty: <span th:text="${item.qty}">1</span></p>
+                                        <p th:if="${item.size}">Size: <span th:text="${item.size}">M</span></p>
+                                    </div>
+                                </div>
+
+                                <div class="action-area text-end" style="min-width: 280px;">
+
+                                    <div th:if="${!item.isCancelled}" class="active-status-area">
+                                        <button class="btn-cancel-item"
+                                                th:data-item-id="${item.id}"
+                                                th:data-order-id="${order.id}"
+                                                onclick="openCancelModal(this)">
+                                            Cancel
+                                        </button>
+                                    </div>
+
+                                    <div th:if="${item.isCancelled}" class="cancelled-status-area">
+                                        <p class="text-danger mb-1">
+                                            This Product Has Been Cancelled on <span th:text="${item.cancelDate}"></span>
+                                        </p>
+                                        <p class="mb-1" style="font-size: 13px;">Reason: <span th:text="${item.cancelReason}"></span></p>
+                                        <span class="badge-pending">Refund Status: Pending</span>
+                                    </div>
+
+                                    <div class="js-cancelled-display d-none">
+                                        <p class="text-danger mb-1" id="js-cancel-msg"></p>
+                                        <p class="mb-1" style="font-size: 13px;">Reason: <span id="js-cancel-reason"></span></p>
+                                        <span class="badge-pending">Refund Status: Pending</span>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="order-footer-info">
+                        <div>
+                            Order Status:
+                            <span class="order-status-badge"
+                                  th:classappend="${order.status == 'Cancelled' ? 'cancelled' : 'placed'}"
+                                  th:text="${order.status}">
+                                    Placed
+                                </span>
+                        </div>
+                        <div>
+                            Ordered On: <span th:text="${order.date}"></span>
+                        </div>
+                        <div>
+                            Order Total: <strong th:text="${'$' + order.total}"></strong>
+                        </div>
+                    </div>
+                </div> <div class="d-flex justify-content-center mt-4">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    </ul>
+                </nav>
+            </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer-fragment}"></div>
+
+
+<div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0 d-block text-center">
+                <i class="fa-solid fa-cart-shopping text-danger mb-2" style="font-size: 40px; position: relative;">
+                    <i class="fa-solid fa-xmark text-white" style="position: absolute; font-size: 18px; right: -5px; bottom: 0; background: #dc3545; border-radius: 50%; padding: 2px 4px;"></i>
+                </i>
+                <h5 class="modal-title fw-bold mt-2">Are you sure to cancel selected product order?</h5>
+                <p class="text-muted mb-0" style="font-size: 14px;">Order ID: <span id="modalOrderId" class="fw-bold text-dark"></span></p>
+            </div>
+
+            <div class="modal-body">
+                <input type="hidden" id="selectedItemId">
+
+                <div class="mb-3">
+                    <textarea class="form-control" id="cancelReason" rows="3" placeholder="Reason for cancellation *"></textarea>
+                </div>
+
+                <div class="p-3 bg-light border rounded mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="fa-solid fa-circle text-danger" style="font-size: 24px;"></i> <div>
+                            <strong style="font-size: 14px;">Lorem Ipsum Bank</strong><br>
+                            <small class="text-muted">Bank Account No: 1234567891</small><br>
+                            <small class="text-muted">Demo</small>
+                        </div>
+                        </div>
+                        <span class="badge bg-secondary">Saving</span>
+                    </div>
+                </div>
+
+                <div class="p-2 border rounded bg-light text-center text-muted" style="cursor: pointer;">
+                    <i class="fa-solid fa-plus"></i> Add New Account
+                </div>
+            </div>
+
+            <div class="modal-footer border-0 justify-content-center gap-3">
+                <button type="button" class="btn btn-danger px-4" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success px-4" onclick="confirmCancel()">Cancel Order</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const cancelModal = new bootstrap.Modal(document.getElementById('cancelOrderModal'));
+
+    // 1. Mở Modal
+    function openCancelModal(button) {
+    // Lấy dữ liệu từ thuộc tính data-*
+    const itemId = button.getAttribute('data-item-id');
+    const orderId = button.getAttribute('data-order-id');
+
+    document.getElementById('selectedItemId').value = itemId;
+    document.getElementById('modalOrderId').innerText = orderId;
+    document.getElementById('cancelReason').value = '';
+    cancelModal.show();
+}
+
+    // 2. Xác nhận Hủy
+    function confirmCancel() {
+        const itemId = document.getElementById('selectedItemId').value;
+        const reason = document.getElementById('cancelReason').value;
+
+        if (!reason.trim()) {
+            alert("Vui lòng nhập lý do hủy đơn!");
+            return;
+        }
+
+        // --- Tại đây bạn sẽ gọi API gửi lên Server ---
+        // fetch('/api/order/cancel', { ... })
+
+        // Cập nhật giao diện (Giả lập thành công)
+        const itemRow = document.getElementById('item-row-' + itemId);
+        if (itemRow) {
+            // Ẩn nút Cancel
+            const activeArea = itemRow.querySelector('.active-status-area');
+            if (activeArea) activeArea.classList.add('d-none');
+
+            // Hiện thông tin hủy
+            const jsDisplay = itemRow.querySelector('.js-cancelled-display');
+
+            // Lấy ngày giờ hiện tại format đẹp
+            const now = new Date();
+            const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+            itemRow.querySelector('#js-cancel-msg').innerText = 'This Product Has Been Cancelled on ' + dateStr;
+            itemRow.querySelector('#js-cancel-reason').innerText = reason;
+
+            jsDisplay.classList.remove('d-none');
+        }
+
+        cancelModal.hide();
+    }
+</script>
+
+</body>
+</html>
