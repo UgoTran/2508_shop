@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng nhập</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #ffffff;
+        }
+
+        .auth-wrapper {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+        }
+
+        .auth-card {
+            width: 420px;
+            background: #f5f7f9;
+            border-radius: 6px;
+            padding: 38px 36px 32px 36px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .auth-title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 22px;
+        }
+
+        .auth-title span {
+            border-bottom: 3px solid #ff4b4b;
+            padding-bottom: 3px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 11px 13px;
+            border-radius: 4px;
+            border: 1px solid #d5d5d5;
+            font-size: 14px;
+            transition: border-color .15s;
+        }
+
+        .form-input:focus {
+            border-color: #ff4b4b;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255,75,75,0.18);
+        }
+
+        .error-msg {
+            margin-top: -8px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: #ff4b4b;
+        }
+
+        .forgot-row {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        .forgot-row a {
+            font-size: 13px;
+            color: #ff4b4b;
+            text-decoration: none;
+        }
+
+        .forgot-row a:hover {
+            text-decoration: underline;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px 12px;
+            border-radius: 4px;
+            border: none;
+            background: #ff4b4b;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background .15s;
+        }
+
+        .btn-login:hover {
+            background: #e63e3e;
+        }
+
+        .auth-footer {
+            margin-top: 18px;
+            text-align: center;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .auth-footer a {
+            color: #ff4b4b;
+            font-weight: bold;
+            text-decoration: none;
+            margin-left: 3px;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="auth-wrapper">
+    <div class="auth-card">
+
+        <div class="auth-title">
+            <span>Đăng nhập</span>
+        </div>
+
+        <!-- URL xử lý login phải trùng loginProcessingUrl("/login") -->
+        <form th:action="@{/login}" method="post">
+            <input type="hidden" name="loginType" value="CLIENT"/>
+
+            <div class="form-group">
+                <input type="text"
+                       name="username"
+                       class="form-input"
+                       placeholder="Tài khoản"
+                       autocomplete="off"
+                       th:value="${param.username}" required>
+            </div>
+
+            <div class="form-group">
+                <input type="password"
+                       name="password"
+                       class="form-input"
+                       placeholder="Mật khẩu"
+                       required>
+            </div>
+
+            <p class="error-msg" th:if="${param.error}">Sai tên đăng nhập hoặc mật khẩu</p>
+
+            <div class="forgot-row">
+                <a th:href="@{/forgot-password}">Quên mật khẩu?</a>
+            </div>
+
+            <button type="submit" class="btn-login">Đăng nhập</button>
+        </form>
+
+        <div class="auth-footer">
+            Bạn chưa có tài khoản?
+            <a th:href="@{/register}">Đăng ký</a>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>
