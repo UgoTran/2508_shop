@@ -1,44 +1,50 @@
 package com.t3h.eshop.storage.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Entity
-@Table(name = "products")
+@Table(name = "product")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Product {
-    //ID sản phẩm
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
     private Integer productId;
 
-    //Tên sản phẩm, cột này không thể null được
-    @Column(name = "product_name", nullable = false)
-    private String productName;
+    @Column(name = "title", nullable = false, columnDefinition = "TEXT")
+    private String title;
 
-    @Column(name = "category_name")
-    private String categoryName;
+    @Column(name = "category_brand_id")
+    private Integer categoryBrandId;
 
-    @Column(name = "product_type")
-    private String productType;
+    @Column(name = "short_description", columnDefinition = "TEXT")
+    private String shortDescription;
 
-    @Column(nullable = false)
-    private BigDecimal productPrice;
+    @Column(name = "product_features", columnDefinition = "TEXT")
+    private String productFeatures;
+
+    @Column(name = "selling_price")
+    private Float sellingPrice;
 
     @Column(name = "is_active")
-    private boolean isActive;
+    private Boolean isActive;
+
+    @Column(name = "image1", columnDefinition = "TEXT")
+    private String image1;
+
+    @Column(name = "image2", columnDefinition = "TEXT")
+    private String image2;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "sub_category_id", nullable = false)
+    @JsonIgnoreProperties("products")
+    private SubCategory subCategory;
 }

@@ -1,13 +1,23 @@
 package com.t3h.eshop.service;
 
+import com.t3h.eshop.storage.entity.Category;
 import com.t3h.eshop.storage.entity.Product;
-import com.t3h.eshop.storage.repository.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 public interface ProductService {
-    // Hàm lấy sản phẩm theo TÊN danh mục
-    public List<Product> getProductsByCategory(String categoryName);
+
+    public List<Product> findAll();
+
+    public Product findById(Integer id);
+
+    public Product create(Product productRequest);
+
+    public Product update(Integer id, Product productRequest);
+
+    public void delete(Integer id);
+
+    Product findByTitle(String title);
+
+    List<Product> getAllActiveProducts();
 }
