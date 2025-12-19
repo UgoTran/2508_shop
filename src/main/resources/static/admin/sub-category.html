@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Sub-Category</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        body { background-color: #f8f9fa; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .card { box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: none; border-radius: 10px; }
+        .table th { background-color: #212529; color: white; vertical-align: middle; }
+        .action-btn { margin: 0 2px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="text-center mb-4">
+        <h2 class="text-primary fw-bold">Quản Lý Danh Mục Con (Sub-Category)</h2>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <h5 class="card-title m-0 text-secondary"><i class="fa-solid fa-list"></i> Danh sách hiện có</h5>
+            <button class="btn btn-success fw-bold" onclick="openCreateModal()">
+                <i class="fa-solid fa-plus-circle"></i> Thêm Mới
+            </button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <table class="table table-hover table-striped align-middle mb-0">
+                <thead>
+                <tr>
+                    <th class="ps-4" style="width: 10%">ID</th>
+                    <th style="width: 30%">Sub-Category Title</th>
+                    <th style="width: 25%">Category</th>
+                    <th style="width: 15%">Status</th>
+                    <th class="text-end pe-4" style="width: 20%">Action</th>
+                </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="subModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold" id="modalTitle">Thêm Mới Sub-Category</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="subForm">
+                    <input type="hidden" id="subIdHidden">
+
+                    <div class="mb-3">
+                        <label for="subTitle" class="form-label fw-bold">Tên Sub-Category</label>
+                        <input type="text" class="form-control" id="subTitle" required placeholder="Nhập tên...">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="parentCategorySelect" class="form-label fw-bold">Category Cha</label>
+                        <select class="form-select" id="parentCategorySelect" required>
+                            <option value="" disabled selected>-- Chọn Category --</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3 form-check form-switch p-2 bg-light border rounded">
+                        <input class="form-check-input ms-0 me-2" type="checkbox" id="subActive" checked>
+                        <label class="form-check-label fw-bold" for="subActive">Kích hoạt (Hiển thị)</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="saveSubCategory()">
+                    <i class="fa-solid fa-save"></i> Lưu Dữ Liệu
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    // --- CẤU HÌNH API ---
+    const API_SUB = '/api/admin/sub-category';
+    const API_CAT = '/api/admin/category';
+
+    let subModal;
+    let listSubData = [];
+    let listCatData = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        subModal = new bootstrap.Modal(document.getElementById('subModal'));
+        loadAllData();
+    });
+
+    // 1. Tải dữ liệu từ Server
+    async function loadAllData() {
+        try {
+            const [subRes, catRes] = await Promise.all([
+                fetch(API_SUB),
+                fetch(API_CAT)
+            ]);
+
+            if (!subRes.ok || !catRes.ok) throw new Error("Lỗi kết nối API");
+
+            listSubData = await subRes.json();
+            listCatData = await catRes.json();
+
+            renderTable(listSubData);
+            renderCategoryDropdown(listCatData);
+
+        } catch (error) {
+            console.error(error);
+            Swal.fire('Lỗi', 'Không thể tải dữ liệu từ server.', 'error');
+        }
+    }
+
+    // 2. Hiển thị bảng
+    function renderTable(data) {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">Chưa có dữ liệu.</td></tr>';
+            return;
+        }
+
+        data.forEach(item => {
+            const isChecked = item.isActive ? 'checked' : '';
+            let parentName = '<span class="text-danger small fst-italic">Chưa gán</span>';
+            if (item.category) {
+                parentName = `<span class="badge bg-info text-dark">${item.category.title}</span>`;
+            }
+
+            // ĐÃ BỎ DẤU # Ở CỘT ID
+            const row = `
+                <tr>
+                    <td class="ps-4 fw-bold text-muted">${item.subCategoryId}</td>
+                    <td class="fw-bold text-primary">${item.title}</td>
+                    <td>${parentName}</td>
+                    <td>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox"
+                                onchange="toggleStatus(${item.subCategoryId}, this.checked)" ${isChecked}>
+                            </div>
+                    </td>
+                    <td class="text-end pe-4">
+                        <button class="btn btn-sm btn-outline-warning action-btn" onclick="openEditModal(${item.subCategoryId})">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger action-btn" onclick="deleteSub(${item.subCategoryId})">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    }
+
+    // 3. Dropdown Category
+    function renderCategoryDropdown(categories) {
+        const select = document.getElementById('parentCategorySelect');
+        select.innerHTML = '<option value="" disabled selected>-- Chọn Category Cha --</option>';
+        categories.forEach(cat => {
+            if (cat.isActive) {
+                const option = document.createElement('option');
+                option.value = cat.categoryId;
+                option.text = cat.title;
+                select.appendChild(option);
+            }
+        });
+    }
+
+    // 4. Các hàm Modal
+    function openCreateModal() {
+        document.getElementById('modalTitle').innerText = 'Thêm Mới Sub-Category';
+        document.getElementById('subForm').reset();
+        document.getElementById('subIdHidden').value = '';
+        document.getElementById('subActive').checked = true;
+        subModal.show();
+    }
+
+    function openEditModal(id) {
+        const item = listSubData.find(s => s.subCategoryId === id);
+        if (!item) return;
+
+        document.getElementById('modalTitle').innerText = 'Cập Nhật Sub-Category';
+        document.getElementById('subIdHidden').value = item.subCategoryId;
+        document.getElementById('subTitle').value = item.title;
+        document.getElementById('subActive').checked = item.isActive;
+
+        if (item.category) {
+            document.getElementById('parentCategorySelect').value = item.category.categoryId;
+        } else {
+            document.getElementById('parentCategorySelect').value = "";
+        }
+        subModal.show();
+    }
+
+    // 5. Lưu Dữ Liệu
+    async function saveSubCategory() {
+        const idStr = document.getElementById('subIdHidden').value;
+        const title = document.getElementById('subTitle').value;
+        const parentId = document.getElementById('parentCategorySelect').value;
+        const isActive = document.getElementById('subActive').checked;
+
+        if (!title.trim() || !parentId) {
+            Swal.fire('Thiếu thông tin', 'Vui lòng nhập tên và chọn Category cha', 'warning');
+            return;
+        }
+
+        const payload = {
+            title: title,
+            isActive: isActive,
+            category: { categoryId: parseInt(parentId) }
+        };
+
+        let url = API_SUB;
+        let method = 'POST';
+
+        if (idStr) {
+            url = `${API_SUB}/${idStr}`;
+            method = 'PUT';
+            payload.subCategoryId = parseInt(idStr);
+        }
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                subModal.hide();
+                Swal.fire('Thành công', 'Đã lưu dữ liệu!', 'success');
+                loadAllData();
+            } else {
+                Swal.fire('Lỗi', 'Không thể lưu dữ liệu.', 'error');
+            }
+        } catch (error) {
+            console.error(error);
+            Swal.fire('Lỗi', 'Lỗi kết nối server', 'error');
+        }
+    }
+
+    // 6. XÓA DỮ LIỆU
+    function deleteSub(id) {
+        if (!id) {
+            Swal.fire('Lỗi', 'ID không hợp lệ', 'error');
+            return;
+        }
+
+        Swal.fire({
+            title: 'Xóa Sub-Category?',
+            text: `Bạn có chắc chắn muốn xóa ID: ${id} không?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Xóa ngay',
+            cancelButtonText: 'Hủy'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`${API_SUB}/delete/${id}`, { method: 'DELETE' });
+
+                    if (response.ok) {
+                        Swal.fire('Đã xóa!', 'Dữ liệu đã bị xóa khỏi Database.', 'success');
+                        loadAllData();
+                    } else {
+                        const err = await response.json();
+                        Swal.fire('Không thể xóa', err.message || 'Lỗi server', 'error');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    Swal.fire('Lỗi', 'Lỗi kết nối hệ thống', 'error');
+                }
+            }
+        });
+    }
+
+    // 7. Toggle Status
+    async function toggleStatus(id, newStatus) {
+        const item = listSubData.find(s => s.subCategoryId === id);
+        if (!item) return;
+
+        let payload = { ...item };
+        payload.isActive = newStatus;
+
+        if (payload.category) {
+            payload.category = { categoryId: payload.category.categoryId };
+        }
+
+        try {
+            const response = await fetch(`${API_SUB}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                item.isActive = newStatus;
+                const Toast = Swal.mixin({
+                    toast: true, position: 'top-end', showConfirmButton: false, timer: 1500
+                });
+                Toast.fire({ icon: 'success', title: 'Đã cập nhật trạng thái' });
+            } else {
+                const errText = await response.text();
+                console.error("Lỗi Server:", errText);
+                Swal.fire('Lỗi', 'Không thể cập nhật: ' + errText, 'error');
+                loadAllData();
+            }
+        } catch (error) {
+            console.error(error);
+            Swal.fire('Lỗi', 'Lỗi kết nối server', 'error');
+            loadAllData();
+        }
+    }
+</script>
+
+</body>
+</html>

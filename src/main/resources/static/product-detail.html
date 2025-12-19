@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi Tiết Sản Phẩm</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', sans-serif; }
+
+        /* Layout Ảnh */
+        .product-gallery {
+            background: white; border-radius: 8px; padding: 20px;
+            border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .main-img {
+            width: 100%; height: 400px; object-fit: contain;
+            margin-bottom: 20px;
+        }
+        .thumb-list { display: flex; justify-content: center; gap: 10px; }
+        .thumb-img {
+            width: 70px; height: 70px; object-fit: cover;
+            border: 2px solid #eee; border-radius: 5px; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .thumb-img:hover, .thumb-img.active { border-color: #dc3545; }
+
+        /* Layout Thông tin */
+        .product-info { padding-left: 20px; }
+        .product-title { font-weight: 800; font-size: 2rem; color: #333; }
+        .product-price { color: #d63031; font-size: 1.8rem; font-weight: bold; margin: 15px 0; }
+
+        .btn-buy { background-color: #d63031; border: none; padding: 12px 40px; font-weight: bold; }
+        .btn-buy:hover { background-color: #b71c1c; }
+
+        /* Box thông số */
+        .specs-box {
+            background: #fff; padding: 20px; border-radius: 8px; margin-top: 30px;
+            border: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark mb-4 p-3">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">E-COMMERCE</a>
+        <button onclick="history.back()" class="btn btn-outline-light btn-sm rounded-pill px-3">
+            <i class="fa-solid fa-arrow-left"></i> Quay lại
+        </button>
+    </div>
+</nav>
+
+<div class="container mb-5">
+
+    <div id="loading" class="text-center py-5">
+        <div class="spinner-border text-danger"></div>
+        <p class="mt-2 text-muted">Đang tải dữ liệu...</p>
+    </div>
+
+    <div id="content" style="display: none;">
+
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/category" class="text-decoration-none text-muted">Trang chủ</a></li>
+                <li class="breadcrumb-item" id="breadCat">...</li>
+                <li class="breadcrumb-item" id="breadSub">...</li>
+                <li class="breadcrumb-item active fw-bold text-dark" id="breadProd">...</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="product-gallery">
+                    <img id="mainImage" src="" class="main-img" alt="Product Image">
+                    <div class="thumb-list" id="gallery">
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 product-info">
+                <h1 id="prodTitle" class="product-title">...</h1>
+
+                <div class="d-flex align-items-center">
+                    <div class="product-price me-3" id="prodPrice">0 ₫</div>
+                    <span class="badge bg-success">Còn hàng</span>
+                </div>
+
+                <p class="text-muted" id="prodDesc">...</p>
+
+                <div class="d-flex gap-2 my-4">
+                    <button class="btn btn-buy btn-lg text-white shadow" onclick="addToCart()">
+                        <i class="fa-solid fa-cart-shopping me-2"></i> MUA NGAY
+                    </button>
+                    <button class="btn btn-outline-secondary btn-lg">
+                        <i class="fa-regular fa-heart"></i>
+                    </button>
+                </div>
+
+                <div class="specs-box">
+                    <h5 class="fw-bold border-bottom pb-2 mb-3"><i class="fa-solid fa-list-check"></i> Thông tin chi tiết</h5>
+                    <div id="prodFeatures" class="text-secondary" style="white-space: pre-line;">
+                        ...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="errorMsg" class="text-center py-5" style="display: none;">
+        <h3 class="text-danger">⚠️ Không tìm thấy sản phẩm!</h3>
+        <a href="/category" class="btn btn-secondary mt-3">Quay về danh sách</a>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        // 1. Lấy tên từ URL: /product/Puma-Running
+        const path = window.location.pathname;
+        const slug = decodeURIComponent(path.split('/').pop());
+
+        if (!slug) return;
+
+        // --- ĐOẠN QUAN TRỌNG NHẤT ---
+        // Vì Controller của bạn không xử lý dấu gạch ngang,
+        // nên Frontend phải đổi "Puma-Running" thành "Puma Running" TRƯỚC khi gọi API.
+        const apiTitle = slug.replace(/-/g, ' ');
+
+        try {
+            // Gọi API: /api/product/Puma Running
+            const res = await fetch(`/api/product/${encodeURIComponent(apiTitle)}`);
+
+            if (res.ok) {
+                const product = await res.json();
+                renderProduct(product);
+            } else {
+                showError();
+            }
+        } catch (e) {
+            console.error(e);
+            showError();
+        }
+    });
+
+    function renderProduct(p) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+
+        // 1. Điền thông tin text
+        document.getElementById('prodTitle').innerText = p.title;
+        document.getElementById('breadProd').innerText = p.title;
+        document.getElementById('prodDesc').innerText = p.shortDescription || 'Đang cập nhật mô tả...';
+        document.getElementById('prodFeatures').innerText = p.productFeatures || 'Chưa có thông số kỹ thuật.';
+
+        // 2. Format tiền tệ VNĐ
+        document.getElementById('prodPrice').innerText = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.sellingPrice);
+
+        // 3. Xử lý ảnh
+        const img1 = p.image1 || 'https://via.placeholder.com/500x500?text=No+Image';
+        const img2 = p.image2;
+
+        const mainImg = document.getElementById('mainImage');
+        mainImg.src = img1;
+
+        // Tạo Gallery
+        const gallery = document.getElementById('gallery');
+        gallery.innerHTML = `<img src="${img1}" class="thumb-img active" onclick="changeImage(this, '${img1}')">`;
+
+        if (img2) {
+            gallery.innerHTML += `<img src="${img2}" class="thumb-img" onclick="changeImage(this, '${img2}')">`;
+        }
+
+        // 4. Xử lý Breadcrumb (Nếu có SubCategory)
+        if (p.subCategory) {
+            const subTitle = p.subCategory.title;
+            const subSlug = subTitle.replace(/\s+/g, '-');
+
+            // Nếu có cả Category cha (nhờ EAGER loading)
+            if (p.subCategory.category) {
+                const catTitle = p.subCategory.category.title;
+                const catSlug = catTitle.replace(/\s+/g, '-');
+
+                // Link Category
+                document.getElementById('breadCat').innerHTML = `<a href="/category/${catSlug}" class="text-decoration-none text-muted">${catTitle}</a>`;
+
+                // Link SubCategory
+                document.getElementById('breadSub').innerHTML = `<a href="/category/${catSlug}/${subSlug}" class="text-decoration-none text-muted">${subTitle}</a>`;
+            } else {
+                // Trường hợp fallback nếu không load được cha
+                document.getElementById('breadSub').innerText = subTitle;
+            }
+        }
+    }
+
+    function changeImage(element, src) {
+        document.getElementById('mainImage').src = src;
+        document.querySelectorAll('.thumb-img').forEach(img => img.classList.remove('active'));
+        element.classList.add('active');
+    }
+
+    function addToCart() {
+        alert("Đã thêm sản phẩm vào giỏ hàng!");
+    }
+
+    function showError() {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('errorMsg').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>

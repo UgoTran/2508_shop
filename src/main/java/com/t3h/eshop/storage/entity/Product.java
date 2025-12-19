@@ -1,11 +1,7 @@
 package com.t3h.eshop.storage.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,9 +34,17 @@ public class Product {
     @Column(name = "selling_price")
     private Float sellingPrice;
 
+    @Column(name = "is_active")
+    private Boolean isActive;
+
     @Column(name = "image1", columnDefinition = "TEXT")
     private String image1;
 
     @Column(name = "image2", columnDefinition = "TEXT")
     private String image2;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "sub_category_id", nullable = false)
+    @JsonIgnoreProperties("products")
+    private SubCategory subCategory;
 }

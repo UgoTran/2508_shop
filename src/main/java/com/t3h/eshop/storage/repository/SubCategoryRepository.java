@@ -1,6 +1,6 @@
 package com.t3h.eshop.storage.repository;
 
-import com.t3h.eshop.storage.entity.Product;
+import com.t3h.eshop.storage.entity.SubCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -10,14 +10,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, Integer> {
-    List<Product> findByIsActiveTrue();
+public interface SubCategoryRepository extends JpaRepository<SubCategory, Integer> {
+    // Tìm tất cả sub-category đang bật
+    List<SubCategory> findByIsActiveTrue();
 
-    Product findByTitle(String title);
+    SubCategory findByTitle(String title);
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM Product p WHERE p.productId = :id")
+    @Query("DELETE FROM SubCategory s WHERE s.subCategoryId = :id")
     void deleteByIdForce(Integer id);
-
 }

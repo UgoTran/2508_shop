@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        body { background-color: #f8f9fa; padding: 20px; font-family: 'Segoe UI', sans-serif; }
+        .card { box-shadow: 0 4px 8px rgba(0,0,0,0.1); border: none; border-radius: 10px; }
+        .table-action-btn { margin: 0 2px; cursor: pointer; }
+        .table th { background-color: #343a40; color: white; vertical-align: middle; }
+        .product-thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; }
+        .price-tag { font-weight: bold; color: #d63031; }
+        .form-check-input { cursor: pointer; width: 3em; height: 1.5em; }
+
+        /* Style riêng cho Modal Xem Chi Tiết */
+        .view-img-box { text-align: center; background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid #eee; margin-bottom: 10px;}
+        .view-img { max-width: 100%; max-height: 300px; object-fit: contain; }
+        .view-label { font-weight: bold; color: #555; width: 130px; display: inline-block;}
+        .view-val { font-weight: 500; color: #000; }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h2 class="text-primary fw-bold">Quản Lý Sản Phẩm</h2>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <h5 class="card-title m-0 text-secondary"><i class="fa-solid fa-boxes-stacked"></i> Danh sách sản phẩm</h5>
+            <button class="btn btn-success fw-bold" onclick="openCreateModal()">
+                <i class="fa-solid fa-plus-circle"></i> Thêm Mới
+            </button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <table class="table table-hover table-striped align-middle mb-0">
+                <thead>
+                <tr>
+                    <th class="ps-3">ID</th>
+                    <th>Ảnh</th>
+                    <th>Title</th>
+                    <th>Selling Price</th>
+                    <th>Sub-Category</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-end pe-4" style="min-width: 150px;">Actions</th>
+                </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="dataModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold" id="modalTitle">Thêm Mới Sản Phẩm</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="dataForm">
+                    <input type="hidden" id="hiddenId">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Tên Sản Phẩm</label>
+                                <input type="text" class="form-control" id="title" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Giá Bán (VNĐ)</label>
+                                <input type="number" class="form-control" id="sellingPrice" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Danh Mục Con</label>
+                                <select class="form-select" id="subCategorySelect" required>
+                                    <option value="" disabled selected>-- Chọn danh mục --</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Link Ảnh Chính</label>
+                                <input type="text" class="form-control" id="image1">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Link Ảnh Phụ</label>
+                                <input type="text" class="form-control" id="image2">
+                            </div>
+                            <div class="mb-3 pt-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="isActive" checked>
+                                    <label class="form-check-label fw-bold" for="isActive">Đang kinh doanh</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Mô tả ngắn</label>
+                                <textarea class="form-control" id="shortDescription" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="saveData()">
+                    <i class="fa-solid fa-save"></i> Lưu Dữ Liệu
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="viewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-circle-info"></i> Chi Tiết Sản Phẩm</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="view-img-box">
+                            <img id="viewImage1" src="" class="view-img" alt="Ảnh chính">
+                        </div>
+                        <div class="view-img-box mt-2" id="viewImage2Box" style="display: none;">
+                            <img id="viewImage2" src="" class="view-img" alt="Ảnh phụ">
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <h3 class="text-primary fw-bold mb-3" id="viewTitle">...</h3>
+
+                        <div class="mb-2"><span class="view-label">Mã SP:</span> <span class="badge bg-secondary" id="viewId">...</span></div>
+                        <div class="mb-2"><span class="view-label">Giá Bán:</span> <span class="price-tag fs-5" id="viewPrice">...</span></div>
+                        <div class="mb-2"><span class="view-label">Danh Mục:</span> <span class="fw-bold text-dark" id="viewSub">...</span></div>
+                        <div class="mb-3"><span class="view-label">Trạng Thái:</span> <span id="viewStatus">...</span></div>
+
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="fw-bold border-bottom pb-2">Mô Tả / Ghi Chú:</h6>
+                                <p class="mb-0 text-secondary" id="viewDesc" style="white-space: pre-line;">...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    const API_PRODUCT = '/api/admin/product';
+    const API_SUB_CATEGORY = '/api/admin/sub-category';
+
+    let dataModal;
+    let viewModal;
+    let currentProducts = [];
+    let subCategoriesList = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        dataModal = new bootstrap.Modal(document.getElementById('dataModal'));
+        viewModal = new bootstrap.Modal(document.getElementById('viewModal'));
+        loadInitialData();
+    });
+
+    async function loadInitialData() {
+        try {
+            const [prodRes, subRes] = await Promise.all([
+                fetch(API_PRODUCT),
+                fetch(API_SUB_CATEGORY)
+            ]);
+
+            if (prodRes.ok) currentProducts = await prodRes.json();
+            if (subRes.ok) subCategoriesList = await subRes.json();
+
+            renderTable(currentProducts);
+            renderSubCategoryDropdown(subCategoriesList);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async function loadProducts() {
+        try {
+            const response = await fetch(API_PRODUCT);
+            if (response.ok) {
+                currentProducts = await response.json();
+                renderTable(currentProducts);
+            }
+        } catch (error) { console.error(error); }
+    }
+
+    function renderTable(data) {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+
+        if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">Chưa có dữ liệu.</td></tr>';
+            return;
+        }
+
+        data.forEach(item => {
+            const price = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.sellingPrice || 0);
+            const img = item.image1 ? item.image1 : 'https://via.placeholder.com/50';
+            const subName = item.subCategory ? `<span class="badge bg-info text-dark">${item.subCategory.title}</span>` : '<span class="text-danger small">Chưa gán</span>';
+
+            const switchBtn = `
+                <div class="form-check form-switch d-flex justify-content-center">
+                    <input class="form-check-input" type="checkbox" role="switch"
+                           ${item.isActive ? 'checked' : ''}
+                           onchange="toggleStatus(${item.productId}, this.checked)">
+                </div>
+            `;
+
+            // ĐÃ SỬA: Xóa dấu # ở ID
+            const row = `
+                <tr>
+                    <td class="ps-3 fw-bold text-muted">${item.productId}</td>
+                    <td><img src="${img}" class="product-thumb"></td>
+                    <td class="fw-bold text-primary">${item.title}</td>
+                    <td class="price-tag">${price}</td>
+                    <td>${subName}</td>
+                    <td>${switchBtn}</td>
+                    <td class="text-end pe-4">
+                        <button class="btn btn-sm btn-outline-info table-action-btn" onclick="openViewModal(${item.productId})" title="Xem chi tiết">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning table-action-btn" onclick="openEditModal(${item.productId})" title="Sửa">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger table-action-btn" onclick="deleteItem(${item.productId})" title="Xóa">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    }
+
+    // --- CÁC HÀM CÒN LẠI GIỮ NGUYÊN ---
+    function openViewModal(id) {
+        const p = currentProducts.find(x => x.productId === id);
+        if (!p) return;
+
+        document.getElementById('viewId').innerText = p.productId;
+        document.getElementById('viewTitle').innerText = p.title;
+        document.getElementById('viewPrice').innerText = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.sellingPrice || 0);
+        document.getElementById('viewSub').innerText = p.subCategory ? p.subCategory.title : 'N/A';
+        document.getElementById('viewDesc').innerText = p.shortDescription || 'Không có mô tả.';
+
+        const statusHtml = p.isActive
+            ? '<span class="badge bg-success">Đang kinh doanh</span>'
+            : '<span class="badge bg-danger">Ngừng kinh doanh</span>';
+        document.getElementById('viewStatus').innerHTML = statusHtml;
+
+        const img1 = p.image1 || 'https://via.placeholder.com/300?text=No+Image';
+        document.getElementById('viewImage1').src = img1;
+
+        const box2 = document.getElementById('viewImage2Box');
+        if (p.image2 && p.image2.trim() !== '') {
+            document.getElementById('viewImage2').src = p.image2;
+            box2.style.display = 'block';
+        } else {
+            box2.style.display = 'none';
+        }
+
+        viewModal.show();
+    }
+
+    async function toggleStatus(id, newStatus) {
+        const product = currentProducts.find(p => p.productId === id);
+        if (!product) return;
+
+        const payload = {
+            productId: product.productId,
+            title: product.title,
+            sellingPrice: product.sellingPrice,
+            shortDescription: product.shortDescription,
+            productFeatures: product.productFeatures,
+            image1: product.image1,
+            image2: product.image2,
+            isActive: newStatus,
+            subCategory: product.subCategory ? { subCategoryId: product.subCategory.subCategoryId } : null
+        };
+
+        try {
+            const response = await fetch(`${API_PRODUCT}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                const Toast = Swal.mixin({
+                    toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, timerProgressBar: true
+                });
+                Toast.fire({ icon: 'success', title: `Đã ${newStatus ? 'BẬT' : 'TẮT'} sản phẩm` });
+                product.isActive = newStatus;
+            } else {
+                Swal.fire('Lỗi', 'Không cập nhật được trạng thái', 'error');
+                loadProducts();
+            }
+        } catch (error) {
+            console.error(error);
+            Swal.fire('Lỗi', 'Lỗi kết nối', 'error');
+            loadProducts();
+        }
+    }
+
+    function renderSubCategoryDropdown(subs) {
+        const select = document.getElementById('subCategorySelect');
+        select.innerHTML = '<option value="" disabled selected>-- Chọn danh mục --</option>';
+        subs.forEach(s => {
+            if(s.isActive) {
+                const option = document.createElement('option');
+                option.value = s.subCategoryId;
+                option.text = s.title;
+                select.appendChild(option);
+            }
+        });
+    }
+
+    function openCreateModal() {
+        document.getElementById('modalTitle').innerText = 'Thêm Mới Sản Phẩm';
+        document.getElementById('dataForm').reset();
+        document.getElementById('hiddenId').value = '';
+        document.getElementById('isActive').checked = true;
+        dataModal.show();
+    }
+
+    function openEditModal(id) {
+        const item = currentProducts.find(p => p.productId === id);
+        if (!item) return;
+
+        document.getElementById('modalTitle').innerText = 'Cập Nhật Sản Phẩm';
+        document.getElementById('hiddenId').value = item.productId;
+        document.getElementById('title').value = item.title;
+        document.getElementById('sellingPrice').value = item.sellingPrice;
+        document.getElementById('image1').value = item.image1 || '';
+        document.getElementById('image2').value = item.image2 || '';
+        document.getElementById('shortDescription').value = item.shortDescription || '';
+        document.getElementById('isActive').checked = item.isActive;
+
+        if (item.subCategory) {
+            document.getElementById('subCategorySelect').value = item.subCategory.subCategoryId;
+        } else {
+            document.getElementById('subCategorySelect').value = "";
+        }
+        dataModal.show();
+    }
+
+    async function saveData() {
+        const id = document.getElementById('hiddenId').value;
+        const title = document.getElementById('title').value;
+        const price = document.getElementById('sellingPrice').value;
+        const subId = document.getElementById('subCategorySelect').value;
+        const image1 = document.getElementById('image1').value;
+        const image2 = document.getElementById('image2').value;
+        const desc = document.getElementById('shortDescription').value;
+        const isActive = document.getElementById('isActive').checked;
+
+        if (!title || !price || !subId) {
+            Swal.fire('Thiếu thông tin', 'Vui lòng nhập Tên, Giá và chọn Danh mục', 'warning');
+            return;
+        }
+
+        const payload = {
+            title: title,
+            sellingPrice: parseFloat(price),
+            isActive: isActive,
+            image1: image1,
+            image2: image2,
+            shortDescription: desc,
+            subCategory: { subCategoryId: parseInt(subId) }
+        };
+
+        let method = 'POST';
+        let url = API_PRODUCT;
+
+        if (id) {
+            method = 'PUT';
+            url = `${API_PRODUCT}/${id}`;
+            payload.productId = parseInt(id);
+        }
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok || response.status === 201) {
+                dataModal.hide();
+                Swal.fire('Thành công', 'Đã lưu dữ liệu!', 'success');
+                loadProducts();
+            } else {
+                Swal.fire('Lỗi', 'Lưu thất bại', 'error');
+            }
+        } catch (error) {
+            console.error(error);
+            Swal.fire('Lỗi', 'Lỗi kết nối', 'error');
+        }
+    }
+
+    function deleteItem(id) {
+        Swal.fire({
+            title: 'Bạn chắc chắn chứ?',
+            text: "Dữ liệu sẽ bị xóa vĩnh viễn!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Xóa ngay'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`${API_PRODUCT}/delete/${id}`, { method: 'DELETE' });
+                    if (response.ok || response.status === 204) {
+                        Swal.fire('Đã xóa!', 'Sản phẩm đã bị xóa.', 'success');
+                        loadProducts();
+                    } else {
+                        Swal.fire('Lỗi', 'Không thể xóa (Có thể do ràng buộc).', 'error');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    Swal.fire('Lỗi', 'Lỗi server', 'error');
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

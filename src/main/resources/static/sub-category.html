@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sub Categories | E-Commerce</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #fff; font-family: Arial, sans-serif; }
+        .category-card {
+            border-radius: 8px; overflow: hidden; background: #fff;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1); transition: transform .2s; cursor: pointer;
+        }
+        .category-card:hover { transform: translateY(-5px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+        .category-card img { width: 100%; height: 160px; object-fit: cover; }
+        .category-title { padding: 12px; font-size: 17px; text-align: center; font-weight: bold; color: #333; }
+        .breadcrumb-area { padding: 20px 80px; font-size: 15px; }
+        .breadcrumb-area a:hover { color: #dc3545 !important; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-danger p-3">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold fs-3" href="/">E-Commerce</a>
+    </div>
+</nav>
+
+<div class="breadcrumb-area">
+    <a href="/" class="text-decoration-none text-dark">Home</a> >
+    <a href="/category" class="text-decoration-none text-dark">Categories</a> >
+    <span id="current-category" class="fw-bold text-danger">...</span>
+</div>
+
+<div class="container mb-5">
+    <h3 id="page-title" class="text-center mb-4 fw-bold">...</h3>
+    <div id="sub-categories" class="row g-4">
+        <div class="col-12 text-center"><div class="spinner-border text-danger"></div></div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        // 1. Lấy Slug từ URL (Ví dụ: Women-Footwear)
+        const path = window.location.pathname;
+        const categorySlug = decodeURIComponent(path.split('/').pop());
+
+        if (!categorySlug || categorySlug === 'category') return;
+
+        // "Women-Footwear" -> "Women Footwear"
+        const apiTitle = categorySlug.replace(/-/g, ' ');
+
+        try {
+            const response = await fetch(`/api/category/${encodeURIComponent(apiTitle)}`);
+
+            if (response.ok) {
+                const data = await response.json();
+
+                // Hiển thị tên
+                document.getElementById('current-category').innerText = data.title;
+                document.getElementById('page-title').innerText = data.title;
+
+                renderSubCategories(data.subCategories);
+            } else {
+                document.getElementById('page-title').innerText = "Không tìm thấy!";
+                document.getElementById('sub-categories').innerHTML = '';
+            }
+        } catch (error) { console.error(error); }
+    });
+
+    function renderSubCategories(list) {
+        const container = document.getElementById('sub-categories');
+        container.innerHTML = '';
+
+        if (!list || list.length === 0) {
+            container.innerHTML = '<div class="col-12 text-center text-muted">Chưa có danh mục con.</div>';
+            return;
+        }
+
+        const currentPath = window.location.pathname;
+        const parentSlug = decodeURIComponent(currentPath.split('/').pop());
+        const activeList = list.filter(item => item.isActive === true);
+
+        activeList.forEach(sub => {
+            const subSlug = sub.title.replace(/\s+/g, '-');
+            const targetUrl = `/category/${encodeURIComponent(parentSlug)}/${encodeURIComponent(subSlug)}`;
+            const fakeImage = `https://via.placeholder.com/300x160/ff4d4d/ffffff?text=${encodeURIComponent(sub.title)}`;
+
+            const col = document.createElement("div");
+            col.className = "col-md-3";
+            col.innerHTML = `
+                <div class="category-card" onclick="window.location.href='${targetUrl}'">
+                    <img src="${fakeImage}" alt="${sub.title}">
+                    <div class="category-title">${sub.title}</div>
+                </div>
+            `;
+            container.appendChild(col);
+        });
+    }
+</script>
+</body>
+</html>

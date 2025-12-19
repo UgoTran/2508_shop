@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product List | E-Commerce</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: #f8f9fa; font-family: Arial, sans-serif; }
+        .product-card {
+            background: #fff; border: 1px solid #eee; border-radius: 8px;
+            transition: 0.3s; overflow: hidden; cursor: pointer; height: 100%;
+        }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .product-img { width: 100%; height: 200px; object-fit: cover; }
+        .p-body { padding: 15px; }
+        .p-price { color: #d63031; font-weight: bold; font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark mb-4 p-3">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">E-COMMERCE</a>
+        <button onclick="history.back()" class="btn btn-outline-light btn-sm rounded-pill px-3">
+            <i class="fa-solid fa-arrow-left"></i> Quay lại
+        </button>
+    </div>
+</nav>
+
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/category" class="text-decoration-none">Categories</a></li>
+            <li class="breadcrumb-item" id="catBreadcrumb">...</li>
+            <li class="breadcrumb-item active fw-bold" id="subBreadcrumb">...</li>
+        </ol>
+    </nav>
+
+    <div class="text-center mb-5">
+        <h2 id="pageTitle" class="fw-bold text-uppercase">Đang tải...</h2>
+        <div style="width: 50px; height: 4px; background: #dc3545; margin: 10px auto;"></div>
+    </div>
+
+    <div id="productArea" class="row g-4">
+        <div class="col-12 text-center py-5"><div class="spinner-border text-danger"></div></div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        // 1. Phân tích URL: /category/Ao-Quan/Ao-Thun
+        const pathParts = window.location.pathname.split('/');
+
+        const catSlug = decodeURIComponent(pathParts[2]); // Ao-Quan
+        const subSlug = decodeURIComponent(pathParts[3]); // Ao-Thun
+
+        // Tạo tên hiển thị đẹp (Bỏ gạch ngang)
+        const catNameDisplay = catSlug.replace(/-/g, ' ');
+        const subNameDisplay = subSlug.replace(/-/g, ' ');
+
+        // Cập nhật Breadcrumb (Link quay lại trang SubCategory)
+        const catLink = `/category/${encodeURIComponent(catSlug)}`;
+        document.getElementById('catBreadcrumb').innerHTML = `<a href="${catLink}" class="text-decoration-none">${catNameDisplay}</a>`;
+        document.getElementById('subBreadcrumb').innerText = subNameDisplay;
+
+        if (!subSlug) return;
+
+        // LOGIC API: Đổi gạch ngang -> Khoảng trắng để gọi API
+        const apiSubTitle = subSlug.replace(/-/g, ' ');
+
+        try {
+            // Gọi đúng đường dẫn API của bạn: /api/subcategory/{title}
+            const res = await fetch(`/api/subcategory/${encodeURIComponent(apiSubTitle)}`);
+
+            if (res.ok) {
+                const data = await res.json();
+                document.getElementById('pageTitle').innerText = data.title;
+                renderProducts(data.products);
+            } else {
+                document.getElementById('pageTitle').innerText = "Không tìm thấy danh mục!";
+                document.getElementById('productArea').innerHTML = '';
+            }
+        } catch (e) { console.error(e); }
+    });
+
+    function renderProducts(products) {
+        const container = document.getElementById('productArea');
+        container.innerHTML = '';
+
+        if (!products || products.length === 0) {
+            container.innerHTML = '<div class="col-12 text-center text-muted fst-italic py-5">Chưa có sản phẩm nào.</div>';
+            return;
+        }
+
+        const formatMoney = (amount) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+
+        products.forEach(p => {
+            if (!p.isActive) return;
+
+            // --- SỬA Ở ĐÂY: TẠO SLUG CHO SẢN PHẨM ---
+            // "Puma Running" -> "Puma-Running"
+            const slug = p.title.replace(/\s+/g, '-');
+
+            // Tạo đường dẫn đích: /product/Puma-Running
+            const targetUrl = `/product/${encodeURIComponent(slug)}`;
+
+            const html = `
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="product-card" onclick="window.location.href='${targetUrl}'">
+                        <img src="${p.image1 || 'https://via.placeholder.com/300'}" class="product-img" alt="${p.title}">
+                        <div class="p-body">
+                            <div class="text-truncate fw-bold mb-1" title="${p.title}">${p.title}</div>
+                            <div class="p-price">${formatMoney(p.sellingPrice)}</div>
+                            <button class="btn btn-danger btn-sm w-100 mt-2">
+                                <i class="fa-solid fa-cart-plus"></i> Mua ngay
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.innerHTML += html;
+        });
+    }
+</script>
+
+</body>
+</html>
