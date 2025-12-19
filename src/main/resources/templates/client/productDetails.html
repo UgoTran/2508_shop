@@ -30,10 +30,10 @@
 </head>
 <body>
 <div class="mt-5 container">
-    <div class="d-flex gap-3">
-        <h5>Home</h5>
-        <h5> > </h5>
-        <h5 th:text="${product.title}"></h5>
+    <div class="mb-4">
+        <a href="/" class="text-decoration-none text-dark">Home</a>
+        <span class="mx-2 text-muted">></span>
+        <span class="text-muted" th:text="${product.title}"></span>
     </div>
 
     <hr>
@@ -53,7 +53,7 @@
             </div>
             <div class="col">
                 <h1 th:text="${product.title}" class="fw-bold"></h1>
-                <h4 th:text="${product.sellingPrice}" class="fw-bold text-danger"></h4>
+                <h4  class="fw-bold text-danger">₹ <span th:text="${product.sellingPrice}"></span></h4>
                 <div class="col-md-6">
                     <div class="rating-card">
                         <div class="star-rating animated-stars">
@@ -70,14 +70,19 @@
                         </div>
                     </div>
                 </div>
-                <p th:text="${product.shortDescription}"></p>
-                <form action="/add-to-cart" method="post">
+
+                <div class="content-container pt-2 pb-2">
+                    <div id="foo" th:text="${product.shortDescription}"></div>
+                    <span id="showHide">See more -></span>
+                </div>
+
+                <form action="/cart/add-to-cart" method="post">
                     <input type="hidden" name="productId" th:value="${product.productId}">
                     <button type="button" class="btn btn-danger rounded-circle" onclick="subtract1()">-</button>
                     <input type="text" id="numValue" name="quantity" value="1" style="width:2rem; text-align:center">
                     <button type="button" class="btn btn-danger rounded-circle" onclick="plus1()">+</button>
 
-                    <button type="button" class="btn btn-danger" style="margin-left: 3rem">Add To Cart</button>
+                    <button type="submit" class="btn btn-danger" style="margin-left: 3rem">Add To Cart</button>
                     <button type="button" class="btn btn-danger">Buy Now</button>
                 </form>
             </div>
@@ -125,6 +130,46 @@
             }, 200);
         });
     });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        let textEle = document.getElementById("foo");
+        let toggleButton = document.getElementById("showHide");
+        let originalText = textEle.textContent;
+        const limit = 200;
+
+        function truncateText() {
+            if(originalText.length > limit) {
+                textEle.textContent = originalText.substring(0, limit) + '...';
+                toggleButton.style.display = 'block'
+            } else {
+                toggleButton.style.display = 'none';
+            }
+        }
+
+        function toggleText() {
+            if (textEle.textContent.endsWith('...')) {
+                textEle.textContent = originalText;
+                toggleButton.textContent = 'See Less';
+            } else {
+                truncateText();
+                toggleButton.textContent = 'See More';
+            }
+        }
+
+        truncateText()
+        toggleButton.addEventListener('click', toggleText);
+    })
+
+    // document.getElementById("showHide").onclick = function() {
+    //     let theDiv = document.getElementById("foo");
+    //     if(theDiv.style.display === 'none') {
+    //         theDiv.style.display = 'block';
+    //         this.innerHTML = 'Hide <-';
+    //     } else {
+    //         theDiv.style.display = 'none';
+    //         this.innerHTML = 'See more ->';
+    //     }
+    // }
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"

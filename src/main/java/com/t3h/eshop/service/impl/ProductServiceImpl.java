@@ -11,16 +11,13 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class OrdersServiceImpl implements ProductService {
+public class ProductServiceImpl implements ProductService {
     @Autowired
     ProductRepository productRepository;
 
     @Override
     public Product getById(Integer productId) {
-        Optional<Product> optionalProduct = productRepository.findById(productId);
-        Product product = null;
-        if(optionalProduct.isEmpty()) throw new RuntimeException("Id " + productId + " not founded");
-        else product = optionalProduct.get();
-        return product;
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product ID " + productId + " not found"));
     }
 }
